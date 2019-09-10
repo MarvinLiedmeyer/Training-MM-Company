@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using CompanyApp.Controller;
+using CompanyApp.Model;
+using ConsoleApp.Controller;
 
 namespace ConsoleApp
 {
@@ -9,8 +12,8 @@ namespace ConsoleApp
         const string CONNECTION_STRING = "Data Source=tappqa;Initial Catalog=Training-MM-Company;Integrated Security=True";
         static void Main(string[] args)
         {
-            Controller.CompanyController companyController = new Controller.CompanyController(CONNECTION_STRING);
-            Controller.AddressController addressController = new Controller.AddressController(CONNECTION_STRING);
+            CompanyController companyController = new CompanyController(CONNECTION_STRING);
+            AddressController addressController = new AddressController(CONNECTION_STRING);
             Controller.EmployeeController employeeController = new Controller.EmployeeController(CONNECTION_STRING);
             Controller.DepartmentController departmentController = new Controller.DepartmentController(CONNECTION_STRING);
 
@@ -40,7 +43,7 @@ namespace ConsoleApp
                     Console.WriteLine("-----------------");
                     switch (Console.ReadLine())
                     {
-                        case "1.1": CreateCompany(companyController); break;
+                        case "1": CreateCompany(companyController); break;
                         case "2": ReadCompanies(companyController); break;
                         case "3": UpdateCompany(companyController); break;
                         case "4": DeleteCompany(companyController); break;
@@ -98,28 +101,28 @@ namespace ConsoleApp
                     Main(args);
                     break;
 
-                case "4":
-                    Console.WriteLine("Choose an Option!");
-                    Console.WriteLine("-----------------");
-                    Console.WriteLine("1. Add a department!");
-                    Console.WriteLine("2. Read all department!");
-                    Console.WriteLine("3. Update an department!");
-                    Console.WriteLine("4. Delete an department!");
-                    Console.WriteLine("5. Close window!");
-                    Console.WriteLine("-----------------");
-                    switch (Console.ReadLine())
-                    {
-                        case "1": CreateDepartment(departmentController); break;
-                        case "2": ReadDepartment(departmentController); break;
-                        case "3": UpdateDepartment(departmentController); break;
-                        case "4": DeleteDepartment(departmentController); break;
-                        case "5": Environment.Exit(0); break;
-                        default: break;
-                    }
-                    Console.Write("Press any key to come back to the main menu...");
-                    Console.ReadKey();
-                    Main(args);
-                    break;
+                //case "4":
+                //    Console.WriteLine("Choose an Option!");
+                //    Console.WriteLine("-----------------");
+                //    Console.WriteLine("1. Add a department!");
+                //    Console.WriteLine("2. Read all department!");
+                //    Console.WriteLine("3. Update an department!");
+                //    Console.WriteLine("4. Delete an department!");
+                //    Console.WriteLine("5. Close window!");
+                //    Console.WriteLine("-----------------");
+                //    switch (Console.ReadLine())
+                //    {
+                //        case "1": CreateDepartment(departmentController); break;
+                //        case "2": ReadDepartment(departmentController); break;
+                //        case "3": UpdateDepartment(departmentController); break;
+                //        case "4": DeleteDepartment(departmentController); break;
+                //        case "5": Environment.Exit(0); break;
+                //        default: break;
+                //    }
+                //    Console.Write("Press any key to come back to the main menu...");
+                //    Console.ReadKey();
+                //    Main(args);
+                //    break;
 
                 case "5": Environment.Exit(0); break;
 
@@ -137,7 +140,7 @@ namespace ConsoleApp
             Main(args);
         }
 
-        static void CreateCompany(Controller.CompanyController companyController)
+        static void CreateCompany(CompanyController companyController)
         {
             Console.WriteLine("--------------------------------------");
             Console.WriteLine("Name of the company?");
@@ -153,9 +156,9 @@ namespace ConsoleApp
             companyController.Create(nameOfCompany, foundedDateOfCompany);
         }
 
-        static void ReadCompanies(Controller.CompanyController companyController)
+        static void ReadCompanies(CompanyController companyController)
         {
-            List<ConsoleApp.Model.Company> companies = companyController.ReadDapper();
+            List<Company> companies = companyController.Read();
 
                 Console.WriteLine("".PadRight(80, '-'));
             Console.WriteLine($"| {"Id".PadRight(8)} | {"Name".PadRight(32)}| {"Founding Date".PadRight(32)}|");
@@ -167,7 +170,7 @@ namespace ConsoleApp
             Console.WriteLine("".PadRight(80, '-'));
         }
 
-        static void UpdateCompany(Controller.CompanyController companyController)
+        static void UpdateCompany(CompanyController companyController)
         {
             Console.WriteLine("--------------------------------------");
             Console.WriteLine("Id of the company");
@@ -189,7 +192,7 @@ namespace ConsoleApp
             companyController.Update(id, nameOfCompany, foundedDateOfCompany);
         }
 
-        static void DeleteCompany(Controller.CompanyController companyController)
+        static void DeleteCompany(CompanyController companyController)
         {
             Console.WriteLine("Id of the company");
             int id = Convert.ToInt32(Console.ReadLine());
@@ -308,7 +311,7 @@ namespace ConsoleApp
 
             addressController.Create(street, city, zip, country);
         }
-        static void ReadAddress(Controller.AddressController addressController)
+        static void ReadAddress(AddressController addressController)
         {
             List<ConsoleApp.Model.Address> addresses = addressController.ReadDapper();
 
@@ -359,5 +362,78 @@ namespace ConsoleApp
 
             addressController.Delete(id);
         }
+
+        //static void CreateDepartment(Controller.DepartmentController departmentController)
+        //{
+        //    Console.WriteLine("--------------------------------------");
+        //    Console.WriteLine("Name?");
+        //    Console.WriteLine("--------------------------------------");
+        //    string street = Console.ReadLine();
+
+        //    Console.WriteLine("--------------------------------------");
+        //    Console.WriteLine("Description?");
+        //    Console.WriteLine("--------------------------------------");
+        //    string city = Console.ReadLine();
+
+
+        //    Console.WriteLine("--------------------------------------");
+        //    Console.WriteLine("CompanyId?");
+        //    Console.WriteLine("--------------------------------------");
+        //    int companyId = Console.ReadLine();
+
+
+        //    departmentController.Create(street, city, zip, country);
+        //}
+        //static void ReadAddress(Controller.AddressController addressController)
+        //{
+        //    List<ConsoleApp.Model.Address> addresses = addressController.ReadDapper();
+
+        //    Console.WriteLine("".PadRight(88, '-'));
+        //    Console.WriteLine($"| {"Id".PadRight(8)} | {"Street".PadRight(16)} | {"City".PadRight(16)} | {"ZIP".PadRight(16)} | {"Country".PadRight(16)} |");
+        //    Console.WriteLine("".PadRight(88, '-'));
+        //    for (int i = 0; i < addresses.Count; i++)
+        //    {
+        //        Console.WriteLine($"| {addresses[i].Id.ToString().PadRight(8)} | {addresses[i].Street.PadRight(16)} | {addresses[i].City.PadRight(16)} | {addresses[i].Zip.PadRight(16)} | {addresses[i].Country.PadRight(16)} |");
+        //    }
+        //    Console.WriteLine("".PadRight(88, '-'));
+        //}
+        //static void UpdateAddress(Controller.AddressController addressController)
+        //{
+        //    Console.WriteLine("--------------------------------------");
+        //    Console.WriteLine("Id of the address");
+        //    Console.WriteLine("--------------------------------------");
+        //    int id = Convert.ToInt32(Console.ReadLine());
+        //    Console.WriteLine("--------------------------------------");
+
+        //    Console.WriteLine("Street?");
+        //    Console.WriteLine("--------------------------------------");
+        //    string street = Console.ReadLine();
+        //    Console.WriteLine("--------------------------------------");
+
+        //    Console.WriteLine("City?");
+        //    Console.WriteLine("--------------------------------------");
+        //    string city = Console.ReadLine();
+        //    Console.WriteLine("--------------------------------------");
+
+        //    Console.WriteLine("ZIP?");
+        //    Console.WriteLine("--------------------------------------");
+        //    string zIP = Console.ReadLine();
+        //    Console.WriteLine("--------------------------------------");
+
+        //    Console.WriteLine("Country");
+        //    Console.WriteLine("--------------------------------------");
+        //    string country = Console.ReadLine();
+        //    Console.WriteLine("--------------------------------------");
+
+
+        //    addressController.Update(id, street, city, zIP, country);
+        //}
+        //static void DeleteAddress(Controller.AddressController addressController)
+        //{
+        //    Console.WriteLine("Id of address");
+        //    int id = Convert.ToInt32(Console.ReadLine());
+
+        //    addressController.Delete(id);
+        //}
     }
 }
