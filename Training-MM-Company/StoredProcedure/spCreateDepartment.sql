@@ -1,8 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[viCreateDepartment]
+﻿CREATE PROCEDURE [dbo].[spCreateDepartment]
 	@Id				Int,
 	@Name			nvaRCHAR(128),
-	@CreationTime	Datetime2,
-	@DeleteTime		Datetime2,
+	@Description	nvarChar(MAX),
 	@CompanyId		Int
 AS
 	declare @dbId int = (select Id from [viDepartment] where Id = @Id) 
@@ -11,12 +10,11 @@ AS
       begin 
              INSERT INTO [dbo].[Department] 
            ([Name],
-			[CreationTime],
-			[DeleteTime],
+		    [Description],
 			[CompanyId])
 
              VALUES 
-                     (@Name,@CreationTime,@DeleteTime,@CompanyId) 
+                     (@Name, @Description, @CompanyId) 
 
             set @dbId = @@IDENTITY 
       end 
@@ -24,6 +22,7 @@ AS
       begin 
             update  [dbo].[Department] set 
                         [Name] = case when @Name is null then [Name] else @Name end,
+						[Description] = case when @Description is null then [Description] else @Description end,
 						[CompanyId] = case when @CompanyId is null then [CompanyId] else @CompanyId end
 			where Id = @dbId 
       end 

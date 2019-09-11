@@ -40,13 +40,13 @@ namespace ConsoleApp.Controller
             return retval;
         }
 
-        public List<Model.Address> ReadDapper()
+        public List<Model.Department> ReadDapper()
         {
-            List<Model.Address> retval = new List<Model.Address>();
+            List<Model.Department> retval = new List<Model.Department>();
 
             using (SqlConnection sqlcon = new SqlConnection(dbSConStr))
             {
-                retval = sqlcon.Query<Model.Address>(comReadCmd).AsList();
+                retval = sqlcon.Query<Model.Department>(comReadCmd).AsList();
             }
 
             return retval;

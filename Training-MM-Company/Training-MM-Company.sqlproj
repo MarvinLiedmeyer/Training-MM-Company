@@ -74,7 +74,7 @@
     <Build Include="StoredProcedure\spCreateEmployee.sql" />
     <Build Include="StoredProcedure\spCreateCompany.sql" />
     <Build Include="StoredProcedure\spCreateAddress.sql" />
-    <Build Include="StoredProcedure\viCreateDepartment.sql" />
+    <Build Include="StoredProcedure\spCreateDepartment.sql" />
     <Build Include="StoredProcedure\spCreateCompany2Address.sql" />
   </ItemGroup>
   <ItemGroup>
