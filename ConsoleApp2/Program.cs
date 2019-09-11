@@ -101,28 +101,28 @@ namespace ConsoleApp
                     Main(args);
                     break;
 
-                //case "4":
-                //    Console.WriteLine("Choose an Option!");
-                //    Console.WriteLine("-----------------");
-                //    Console.WriteLine("1. Add a department!");
-                //    Console.WriteLine("2. Read all department!");
-                //    Console.WriteLine("3. Update an department!");
-                //    Console.WriteLine("4. Delete an department!");
-                //    Console.WriteLine("5. Close window!");
-                //    Console.WriteLine("-----------------");
-                //    switch (Console.ReadLine())
-                //    {
-                //        case "1": CreateDepartment(departmentController); break;
-                //        case "2": ReadDepartment(departmentController); break;
-                //        case "3": UpdateDepartment(departmentController); break;
-                //        case "4": DeleteDepartment(departmentController); break;
-                //        case "5": Environment.Exit(0); break;
-                //        default: break;
-                //    }
-                //    Console.Write("Press any key to come back to the main menu...");
-                //    Console.ReadKey();
-                //    Main(args);
-                //    break;
+                case "4":
+                    Console.WriteLine("Choose an Option!");
+                    Console.WriteLine("-----------------");
+                    Console.WriteLine("1. Add a department!");
+                    Console.WriteLine("2. Read all department!");
+                    Console.WriteLine("3. Update an department!");
+                    Console.WriteLine("4. Delete an department!");
+                    Console.WriteLine("5. Close window!");
+                    Console.WriteLine("-----------------");
+                    switch (Console.ReadLine())
+                    {
+                        case "1": CreateDepartment(departmentController); break;
+                        case "2": ReadDepartment(departmentController); break;
+                        case "3": UpdateDepartment(departmentController); break;
+                        case "4": DeleteDepartment(departmentController); break;
+                        case "5": Environment.Exit(0); break;
+                        default: break;
+                    }
+                    Console.Write("Press any key to come back to the main menu...");
+                    Console.ReadKey();
+                    Main(args);
+                    break;
 
                 case "5": Environment.Exit(0); break;
 
@@ -363,77 +363,72 @@ namespace ConsoleApp
             addressController.Delete(id);
         }
 
-        //static void CreateDepartment(Controller.DepartmentController departmentController)
-        //{
-        //    Console.WriteLine("--------------------------------------");
-        //    Console.WriteLine("Name?");
-        //    Console.WriteLine("--------------------------------------");
-        //    string street = Console.ReadLine();
+        static void CreateDepartment(Controller.DepartmentController departmentController)
+        {
+            Console.WriteLine("--------------------------------------");
+            Console.WriteLine("Name?");
+            Console.WriteLine("--------------------------------------");
+            string name = Console.ReadLine();
 
-        //    Console.WriteLine("--------------------------------------");
-        //    Console.WriteLine("Description?");
-        //    Console.WriteLine("--------------------------------------");
-        //    string city = Console.ReadLine();
-
-
-        //    Console.WriteLine("--------------------------------------");
-        //    Console.WriteLine("CompanyId?");
-        //    Console.WriteLine("--------------------------------------");
-        //    int companyId = Console.ReadLine();
+            Console.WriteLine("--------------------------------------");
+            Console.WriteLine("Description?");
+            Console.WriteLine("--------------------------------------");
+            string description = Console.ReadLine();
 
 
-        //    departmentController.Create(street, city, zip, country);
-        //}
-        //static void ReadAddress(Controller.AddressController addressController)
-        //{
-        //    List<ConsoleApp.Model.Address> addresses = addressController.ReadDapper();
-
-        //    Console.WriteLine("".PadRight(88, '-'));
-        //    Console.WriteLine($"| {"Id".PadRight(8)} | {"Street".PadRight(16)} | {"City".PadRight(16)} | {"ZIP".PadRight(16)} | {"Country".PadRight(16)} |");
-        //    Console.WriteLine("".PadRight(88, '-'));
-        //    for (int i = 0; i < addresses.Count; i++)
-        //    {
-        //        Console.WriteLine($"| {addresses[i].Id.ToString().PadRight(8)} | {addresses[i].Street.PadRight(16)} | {addresses[i].City.PadRight(16)} | {addresses[i].Zip.PadRight(16)} | {addresses[i].Country.PadRight(16)} |");
-        //    }
-        //    Console.WriteLine("".PadRight(88, '-'));
-        //}
-        //static void UpdateAddress(Controller.AddressController addressController)
-        //{
-        //    Console.WriteLine("--------------------------------------");
-        //    Console.WriteLine("Id of the address");
-        //    Console.WriteLine("--------------------------------------");
-        //    int id = Convert.ToInt32(Console.ReadLine());
-        //    Console.WriteLine("--------------------------------------");
-
-        //    Console.WriteLine("Street?");
-        //    Console.WriteLine("--------------------------------------");
-        //    string street = Console.ReadLine();
-        //    Console.WriteLine("--------------------------------------");
-
-        //    Console.WriteLine("City?");
-        //    Console.WriteLine("--------------------------------------");
-        //    string city = Console.ReadLine();
-        //    Console.WriteLine("--------------------------------------");
-
-        //    Console.WriteLine("ZIP?");
-        //    Console.WriteLine("--------------------------------------");
-        //    string zIP = Console.ReadLine();
-        //    Console.WriteLine("--------------------------------------");
-
-        //    Console.WriteLine("Country");
-        //    Console.WriteLine("--------------------------------------");
-        //    string country = Console.ReadLine();
-        //    Console.WriteLine("--------------------------------------");
+            Console.WriteLine("--------------------------------------");
+            Console.WriteLine("CompanyId?");
+            Console.WriteLine("--------------------------------------");
+            int companyId = Convert.ToInt32(Console.ReadLine());
 
 
-        //    addressController.Update(id, street, city, zIP, country);
-        //}
-        //static void DeleteAddress(Controller.AddressController addressController)
-        //{
-        //    Console.WriteLine("Id of address");
-        //    int id = Convert.ToInt32(Console.ReadLine());
+            departmentController.Create(name, description, companyId);
+        }
+        static void ReadDepartment(Controller.DepartmentController departmentController)
+        {
+            List<ConsoleApp.Model.Department> departments = departmentController.ReadDapper();
 
-        //    addressController.Delete(id);
-        //}
+            Console.WriteLine("".PadRight(78, '-'));
+            Console.WriteLine($"| {"Id".PadRight(8)} | {"Name".PadRight(16)} | {"Description".PadRight(32)} | {"CompanyId".PadRight(8)} |");
+            Console.WriteLine("".PadRight(78, '-'));
+            for (int i = 0; i < departments.Count; i++)
+            {
+                Console.WriteLine($"| {departments[i].Id.ToString().PadRight(8)} | {departments[i].Name.PadRight(16)} | {departments[i].Description.PadRight(32)} | {departments[i].CompanyId.ToString().PadRight(9)} |");
+            }
+            Console.WriteLine("".PadRight(78, '-'));
+        }
+        static void UpdateDepartment(Controller.DepartmentController departmentController)
+        {
+            Console.WriteLine("--------------------------------------");
+            Console.WriteLine("Id of the Department");
+            Console.WriteLine("--------------------------------------");
+            int id = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("--------------------------------------");
+
+            Console.WriteLine("Name?");
+            Console.WriteLine("--------------------------------------");
+            string name = Console.ReadLine();
+            Console.WriteLine("--------------------------------------");
+
+            Console.WriteLine("Description?");
+            Console.WriteLine("--------------------------------------");
+            string description = Console.ReadLine();
+            Console.WriteLine("--------------------------------------");
+
+            Console.WriteLine("CompanyId?");
+            Console.WriteLine("--------------------------------------");
+            int CompanId = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("--------------------------------------");
+
+
+            departmentController.Update(id, name, description, CompanId);
+        }
+        static void DeleteDepartment(Controller.DepartmentController departmentController)
+        {
+            Console.WriteLine("Id of the department");
+            int id = Convert.ToInt32(Console.ReadLine());
+
+            departmentController.Delete(id);
+        }
     }
 }
