@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using CompanyApp.Controller;
-using CompanyApp.Model;
 using ConsoleApp.Controller;
 
 namespace ConsoleApp
@@ -153,12 +152,18 @@ namespace ConsoleApp
             DateTime foundedDateOfCompany = Convert.ToDateTime(Console.ReadLine());
             Console.WriteLine("--------------------------------------");
 
-            companyController.Create(nameOfCompany, foundedDateOfCompany);
+            var company = new Model.Company
+            {
+                Name = nameOfCompany,
+                FoundedDate = foundedDateOfCompany
+            };
+
+            companyController.Create(company);
         }
 
         static void ReadCompanies(CompanyController companyController)
         {
-            List<Company> companies = companyController.Read();
+            List<ConsoleApp.Model.Company> companies = companyController.Read();
 
                 Console.WriteLine("".PadRight(80, '-'));
             Console.WriteLine($"| {"Id".PadRight(8)} | {"Name".PadRight(32)}| {"Founding Date".PadRight(32)}|");
@@ -189,7 +194,14 @@ namespace ConsoleApp
             DateTime foundedDateOfCompany = Convert.ToDateTime(Console.ReadLine());
             Console.WriteLine("--------------------------------------");
 
-            companyController.Update(id, nameOfCompany, foundedDateOfCompany);
+            var company = new Model.Company
+            {
+                Id = id,
+                Name = nameOfCompany,
+                FoundedDate = foundedDateOfCompany
+            };
+
+            companyController.Update(company);
         }
 
         static void DeleteCompany(CompanyController companyController)
