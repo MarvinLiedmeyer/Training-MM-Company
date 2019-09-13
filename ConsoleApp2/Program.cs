@@ -170,7 +170,8 @@ namespace ConsoleApp
             Console.WriteLine("".PadRight(80, '-'));
             for (int i = 0; i < companies.Count; i++)
             {
-                Console.WriteLine($"| {companies[i].Id.ToString().PadRight(8)} | {companies[i].Name.PadRight(32)}| {companies[i].FoundedDate.ToString("MM/dd/yyyy").PadRight(32)}|");
+                Console.WriteLine($"| {companies[i].Id.ToString().PadRight(8)} | {companies[i].Name.PadRight(32)}| ");
+                    //$"{companies[i].FoundedDate.ToString("MM/dd/yyyy").PadRight(32)}|");
             }
             Console.WriteLine("".PadRight(80, '-'));
         }
@@ -399,13 +400,15 @@ namespace ConsoleApp
         static void ReadDepartment(Controller.DepartmentController departmentController)
         {
             List<ConsoleApp.Model.Department> departments = departmentController.ReadDapper();
+            //List<ConsoleApp.Model.Company> companies = companyController.Read();
+
 
             Console.WriteLine("".PadRight(78, '-'));
-            Console.WriteLine($"| {"Id".PadRight(8)} | {"Name".PadRight(16)} | {"Description".PadRight(32)} | {"CompanyId".PadRight(8)} |");
+            Console.WriteLine($"| {"Id".PadRight(8)} | {"Name".PadRight(16)} | {"Description".PadRight(32)} | {"CompanyName".PadRight(16)} |");
             Console.WriteLine("".PadRight(78, '-'));
             for (int i = 0; i < departments.Count; i++)
             {
-                Console.WriteLine($"| {departments[i].Id.ToString().PadRight(8)} | {departments[i].Name.PadRight(16)} | {departments[i].Description.PadRight(32)} | {departments[i].CompanyId.ToString().PadRight(9)} |");
+                Console.WriteLine($"| {departments[i].Id.ToString().PadRight(8)} | {departments[i].Name.PadRight(16)} | {departments[i].Description.PadRight(32)} | {departments[i].Name.PadRight(16)} |");
             }
             Console.WriteLine("".PadRight(78, '-'));
         }
