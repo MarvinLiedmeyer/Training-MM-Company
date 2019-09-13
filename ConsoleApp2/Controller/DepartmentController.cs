@@ -9,7 +9,7 @@ namespace ConsoleApp.Controller
     class DepartmentController
     {
         string dbSConStr = "";
-        string comReadCmd = "SELECT Id, Name, Description, CompanyId FROM Department WHERE DeleteTime IS NULL";
+        string comReadCmd = "SELECT Department.Id, Department.Name, Department.Description, Company.Name FROM Department JOIN Company On Company.Id = Department.CompanyId WHERE Department.DeleteTime IS NULL";
         public DepartmentController(string ConnectionString)
         {
             dbSConStr = ConnectionString;
