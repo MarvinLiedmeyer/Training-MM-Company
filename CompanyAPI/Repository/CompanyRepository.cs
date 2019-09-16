@@ -4,18 +4,19 @@ using System.Data.SqlClient;
 using System.Text;
 using ConsoleApp.Model;
 using ConsoleApp.Interface;
+using Dapper;
+
 
 
 namespace ConsoleApp.Repository
 {
     public class CompanyRepository : IBaseInterface<Company>
     {
-        string connectionString = "";
-        string companyReadCmd = "select Id, Name, FoundedDate from Company WHERE DeleteTime IS NULL";
+        string connectionString = "Data Source=tappqa;Initial Catalog=Training-MM-Company;Integrated Security=True";
+        string companyReadIdCmd = $"SELECT id, name, foundeddate FROM company WHERE id = @id";
 
-        public CompanyRepository(string connectionString)
+        public CompanyRepository()
         {
-            this.connectionString = connectionString;
         }
 
         public Company Create(Company data)
@@ -63,6 +64,18 @@ namespace ConsoleApp.Repository
                         }
                     }
                 }
+            }
+            return retVal;
+        }
+        public Company ReadId(int id)
+        {
+            var retVal = new Company();
+            var parameters = new DynamicParameters();
+            parameters.Add("@id", id);
+
+            using (SqlConnection sqlcon = new SqlConnection(connectionString))
+            {
+                retVal = sqlcon.QueryFirstOrDefault<Company>(companyReadIdCmd, parameters);
             }
             return retVal;
         }
