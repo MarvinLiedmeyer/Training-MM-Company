@@ -3,121 +3,98 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text;
 using ConsoleApp.Model;
-using ConsoleApp.Interface;
 using Dapper;
-
-
+using CompanyAPI.Model;
+using CompanyAPI.Interface;
+using System.Data;
 
 namespace ConsoleApp.Repository
 {
-    public class CompanyRepository : IBaseInterface<Company>
+    public class CompanyRepository : CompanyAPI.Interface.IBaseInterface<CompanyDto, Company>
     {
-        string connectionString = "Data Source=tappqa;Initial Catalog=Training-MM-Company;Integrated Security=True";
-        string companyReadIdCmd = $"SELECT id, name, foundeddate FROM company WHERE id = @id";
 
-        public CompanyRepository()
+        private readonly IDbContext _dbContext;
+
+        string sqlCommSel = "select Id, Name, FoundedDate from Company where DeleteTime is null";
+        string sqlCommSelId = "select Id, Name, FoundedDate from Company where Id = @id and DeleteTime is null";
+        string sqlCommDel = "update company set DeleteTime = GetDate() where id = @id";
+        string companyReadIdCmd = $"SELECT id, name, foundeddate FROM company WHERE id = @id";
+        string sqlCommAddOrUpdate = "spCreateCompany";
+
+        public CompanyRepository(IDbContext dbContext)
         {
+            _dbContext = dbContext;
         }
 
-        public Company Create(Company data)
+        public bool Create(CompanyDto data)
         {
-            Company retval = new Company();
-
-            var storedProcedure = "spCreateCompany";
-            using (SqlConnection sqlConnection = new SqlConnection(connectionString))
+            Company newModel = new Company()
             {
-                using (SqlCommand sqlCommand = new SqlCommand(storedProcedure, sqlConnection))
-                {
-                    sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                    sqlCommand.Parameters.AddWithValue("@Name", data.Name);
-                    sqlCommand.Parameters.AddWithValue("@FoundedDate", data.FoundedDate);
-                    sqlConnection.Open();
-
-                    var result = sqlCommand.ExecuteNonQuery();
-                }
-            }
-
-            return retval;
+                Name = data.Name,
+                FoundedDate = data.FoundedDate
+            };
+            return CreateOrUpdate(newModel);
         }
 
         public List<Company> Read()
         {
-            string companyReadCmd = "SELECT Id, Name, FoundedDate FROM Company WHERE DeleteTime IS NULL";
-            List<Model.Company> retVal = new List<Company>();
-
-            using (SqlConnection sqlCon = new SqlConnection(connectionString))
+            List<Company> retval = new List<Company>();
+            using (var sqlConn = _dbContext.GetConnection())
             {
-                using (SqlCommand cmd = new SqlCommand(companyReadCmd, sqlCon))
-                {
-                    sqlCon.Open();
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            Model.Company company = new Model.Company();
-
-                            company.Id = (int)reader["Id"];
-                            company.Name = reader["Name"].ToString();
-                            company.FoundedDate = reader["FoundedDate"] != null && reader["FoundedDate"] != DBNull.Value ? Convert.ToDateTime(reader["FoundedDate"]) : DateTime.MinValue;
-                            retVal.Add(company);
-
-                        }
-                    }
-                }
+                retval = sqlConn.Query<Company>(sqlCommSel).AsList();
             }
-            return retVal;
-        }
-        public Company ReadId(int id)
-        {
-            var retVal = new Company();
-            var parameters = new DynamicParameters();
-            parameters.Add("@id", id);
-
-            using (SqlConnection sqlcon = new SqlConnection(connectionString))
-            {
-                retVal = sqlcon.QueryFirstOrDefault<Company>(companyReadIdCmd, parameters);
-            }
-            return retVal;
-        }
-
-        public Company Update(Company data)
-        {
-            Company retval = new Company();
-            var storedProcedure = "spCreateCompany";
-            using (SqlConnection sqlConnection = new SqlConnection(connectionString))
-            {
-                using (SqlCommand sqlCommand = new SqlCommand(storedProcedure, sqlConnection))
-                {
-                    sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                    sqlCommand.Parameters.AddWithValue("@Id", data.Id);
-                    sqlCommand.Parameters.AddWithValue("@Name", data.Name);
-                    sqlCommand.Parameters.AddWithValue("@FoundedDate", data.FoundedDate);
-                    sqlConnection.Open();
-
-                    var result = sqlCommand.ExecuteNonQuery();
-                }
-            }
-
             return retval;
+        }
+        public CompanyDto ReadId(int id)
+        {
+            CompanyDto retval = new CompanyDto();
+            using (var sqlConn = _dbContext.GetConnection())
+            {
+                var param = new DynamicParameters();
+                param.Add("@id", id);
+                retval = sqlConn.QueryFirstOrDefault<CompanyDto>(sqlCommSelId, param);
+            }
+            return retval;
+        }
+
+        public bool Update(CompanyDto model, int id)
+        {
+            Company newModel = new Company()
+            {
+                Id = id,
+                Name = model.Name,
+                FoundedDate = model.FoundedDate
+            };
+            return CreateOrUpdate(newModel);
         }
 
         public bool Delete(int id)
         {
             bool retval = false;
-            var query = $"update company set DeleteTime = GetDate() where id = @id";
-
-            using (SqlConnection sqlcon = new SqlConnection(connectionString))
+            var query = sqlCommDel;
+            var param = new DynamicParameters();
+            param.Add("@id", id);
+            using (var sqlConn = _dbContext.GetConnection())
             {
-                using (SqlCommand cmd = new SqlCommand(query, sqlcon))
-                {
-                    sqlcon.Open();
-                    cmd.Parameters.AddWithValue("@id", id);
-                    var result = cmd.ExecuteNonQuery();
-                    retval = (result == 1);
-                }
+                var result = sqlConn.Execute(query, param);
+                retval = (result == 1);
             }
-
             return retval;
+        }
+        private bool CreateOrUpdate(Company model)
+        {
+            var query = sqlCommAddOrUpdate;
+            Company retval;
+            using (var sqlConn = _dbContext.GetConnection())
+            {
+                DynamicParameters param = new DynamicParameters();
+                param.AddDynamicParams(
+                    new { model.Id, model.Name, model.FoundedDate }
+                    );
+
+                retval = sqlConn.QueryFirstOrDefault<Company>(query, param, commandType: CommandType.StoredProcedure);
+            }
+            return retval != null;
         }
     }
 }

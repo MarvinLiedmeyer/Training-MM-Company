@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CompanyAPI.Interface;
 using CompanyAPI.Model;
 using ConsoleApp.Model;
 using ConsoleApp.Repository;
@@ -14,12 +15,18 @@ namespace CompanyAPI.Controller
     [ApiController]
     public class CompaniesController : ControllerBase
     {
-        private readonly CompanyRepository repo = new CompanyRepository();
+        private readonly IBaseInterface<CompanyDto, Company> _companyRepository;
+        //private readonly CompanyRepository repo = new CompanyRepository();
         // GET api/values
+
+        public CompaniesController(IBaseInterface<CompanyDto, Company> companyRepository)
+        {
+            _companyRepository = companyRepository;
+        }
         [HttpGet] 
         public IActionResult Get()
         {
-            var retval = repo.Read();
+            var retval = _companyRepository.Read();
             return Ok(retval);
         }
 
@@ -27,8 +34,8 @@ namespace CompanyAPI.Controller
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var retVal = repo.ReadId(id);
-            if (repo.ReadId(id) == null)
+            var retVal = _companyRepository.ReadId(id);
+            if (_companyRepository.ReadId(id) == null)
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
@@ -41,9 +48,9 @@ namespace CompanyAPI.Controller
         {
             if(validateCreate(company))
             {
-            repo.Create(company.GetCompany());
+                _companyRepository.Create(company.GetCompany());
 
-            if (repo.Create(company.GetCompany()) == null)
+            if (_companyRepository.Create(company.GetCompany()) == false)
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
@@ -60,19 +67,20 @@ namespace CompanyAPI.Controller
         
 
         // PUT api/values/5
-        [HttpPut]
-        public IActionResult Put([FromBody] Company company)
+        [HttpPut("{id}")]
+        public IActionResult Put(int id,  [FromBody] CompanyDto company)
         {
             if (validateUpdate(company))
             {
-                repo.Update(company);
+                _companyRepository.Update(company, id);
 
-                if (repo.Update(company) == null)
+                if (_companyRepository.Update(company, id) == false)
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-                return Ok(company.Id);
-            }else
+                return NoContent();
+            }
+            else
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
@@ -84,7 +92,7 @@ namespace CompanyAPI.Controller
         public IActionResult Delete( int id )
         {
             {
-                var retVal = repo.Delete(id);
+                var retVal = _companyRepository.Delete(id);
                 if (retVal)
                 {
                     return StatusCode(StatusCodes.Status204NoContent, $"Delted {id}");
@@ -101,7 +109,7 @@ namespace CompanyAPI.Controller
             }
             return false;
         }
-        private bool validateUpdate(Company company)
+        private bool validateUpdate(CompanyDto company)
         {
             if (company.Name != null && company.FoundedDate != null)
             {

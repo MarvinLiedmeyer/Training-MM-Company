@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using ConsoleApp.Model;
 
-namespace ConsoleApp.Interface
+namespace CompanyAPI.Interface
 {
-    public interface IBaseInterface<T>
+    public interface IBaseInterface<T, D>
     {
-        T Create(T data);
-        List<T> Read();
-        T Update(T data);
+        bool Create(T data);
+        List<D> Read();
+        bool Update(T data, int id);
+        T ReadId(int id);
         bool Delete(int id);
     }
 }
