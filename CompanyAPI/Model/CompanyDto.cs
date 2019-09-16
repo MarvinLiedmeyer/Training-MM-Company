@@ -11,7 +11,7 @@ namespace CompanyAPI.Model
         public string Name { get; set; }
         public DateTime? FoundedDate { get; set; }
 
-        public Company GetCompany() => new Company
+        public CompanyDto GetCompany() => new CompanyDto
         {
             Name = this.Name,
             FoundedDate = this.FoundedDate
