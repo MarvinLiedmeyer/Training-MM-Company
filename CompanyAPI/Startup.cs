@@ -34,6 +34,7 @@ namespace CompanyAPI
             services.Configure<DbSetting>(Configuration.GetSection("DbContext"));
 
             services.AddScoped<IBaseInterface<CompanyDto, Company>, CompanyRepository>();
+            services.AddScoped<IBaseInterface<DepartmentDto, Department>, CompanyRepository>();
 
             services.AddSingleton<IDbContext, DbContext>();
         }
