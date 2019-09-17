@@ -46,7 +46,7 @@ namespace CompanyAPI.Controller
             {
                 if (validateCreate(department))
                 {
-                 var retVal =_departmentRepository.Create(department.GetDepartment());
+                 var retVal =_departmentRepository.Create(department);
 
                     if (retVal == false)
                     {
