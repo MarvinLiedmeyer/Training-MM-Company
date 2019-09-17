@@ -68,21 +68,24 @@ namespace CompanyAPI.Controller
         [HttpPut("{id}")]
         public IActionResult Put(int id,  [FromBody] CompanyDto company)
         {
-            if (validateUpdate(company))
+            if (_companyRepository.ReadId(id) != null)
             {
-                var retVal =_companyRepository.Update(company, id);
+                if (validateUpdate(company))
+                {
+                    var retVal = _companyRepository.Update(company, id);
 
-                if (retVal == false)
+                    if (retVal == false)
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest);
+                    }
+                    return NoContent();
+                }
+                else
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-                return NoContent();
             }
-            else
-            {
-                return StatusCode(StatusCodes.Status400BadRequest);
-            }
-
+            return StatusCode(StatusCodes.Status404NotFound);
         }
 
         // DELETE api/values/5
