@@ -14,10 +14,10 @@ namespace CompanyAPI.Repository
     {
         private readonly IDbContext _dbContext;
 
-        string sqlCommSel = "select Id, Name, Description, CompanyId from Department where DeleteTime is null";
-        string sqlCommSelId = "select Id, Name, Description, CompanyId from Department where Id = @id and DeleteTime is null";
+        string sqlCommSel = "select [Department].Id, [Department].Name, Description, CompanyId, [Company].Name AS CompanyName from Department JOIN Company ON CompanyId = [Company].Id  where [Department].DeleteTime is null";
+        string sqlCommSelId = "select [Department].Id, [Department].Name, Description, [Company].Name from Department JOIN Company  ON CompanyId = [Company].Id from Department where Id = @id and [Department].DeleteTime is null";
         string sqlCommDel = "update Department set DeleteTime = GetDate() where id = @id";
-        string companyReadIdCmd = $"SELECT id, name, Description, CompanyId from Department WHERE id = @id";
+        string companyReadIdCmd = $"SELECT [Department].id, [Department].name, Description, [Company].Name from Department JOIN Company ON CompanyId = [Company].Id from Department WHERE id = @id";
         string sqlCommAddOrUpdate = "spCreateDepartment";
 
         public DepartmentRepository(IDbContext dbContext)

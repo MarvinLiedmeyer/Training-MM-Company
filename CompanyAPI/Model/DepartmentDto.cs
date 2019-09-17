@@ -11,11 +11,6 @@ namespace CompanyAPI.Model
         public string Description { get; set; }
         public int CompanyId { get; set; }
 
-        public DepartmentDto GetDepartment() => new DepartmentDto
-        {
-            Name = this.Name,
-            Description = this.Description,
-            CompanyId = this.CompanyId
-        };
+        public string CompanyName { get; set; }
     }
 }
