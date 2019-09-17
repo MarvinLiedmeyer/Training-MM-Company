@@ -16,8 +16,6 @@ namespace CompanyAPI.Controller
     public class CompaniesController : ControllerBase
     {
         private readonly IBaseInterface<CompanyDto, Company> _companyRepository;
-        //private readonly CompanyRepository repo = new CompanyRepository();
-        // GET api/values
 
         public CompaniesController(IBaseInterface<CompanyDto, Company> companyRepository)
         {
@@ -48,9 +46,9 @@ namespace CompanyAPI.Controller
         {
             if(validateCreate(company))
             {
-                _companyRepository.Create(company.GetCompany());
+                var retVal = _companyRepository.Create(company.GetCompany());
 
-            if (_companyRepository.Create(company.GetCompany()) == false)
+            if (retVal == false)
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
@@ -72,9 +70,9 @@ namespace CompanyAPI.Controller
         {
             if (validateUpdate(company))
             {
-                _companyRepository.Update(company, id);
+                var retVal =_companyRepository.Update(company, id);
 
-                if (_companyRepository.Update(company, id) == false)
+                if (retVal == false)
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }

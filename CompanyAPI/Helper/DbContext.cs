@@ -12,8 +12,8 @@ namespace CompanyAPI.Helper
 {
     public class DbContext : IDbContext
     {
-        private readonly DbSetting _settings;
-        public DbContext(IOptions<DbSetting> options)
+        private readonly DbSettings _settings;
+        public DbContext(IOptions<DbSettings> options)
         {
             _settings = options.Value;
         }

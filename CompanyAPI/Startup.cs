@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CompanyAPI.Helper;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
+using CompanyAPI.Repository;
 using ConsoleApp.Model;
 using ConsoleApp.Repository;
 using Microsoft.AspNetCore.Builder;
@@ -31,10 +32,10 @@ namespace CompanyAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.Configure<DbSetting>(Configuration.GetSection("DbContext"));
+            services.Configure<DbSettings>(Configuration.GetSection("DbSettings"));
 
             services.AddScoped<IBaseInterface<CompanyDto, Company>, CompanyRepository>();
-            services.AddScoped<IBaseInterface<DepartmentDto, Department>, CompanyRepository>();
+            services.AddScoped<IBaseInterface<DepartmentDto, Department>, DepartmentRepository>();
 
             services.AddSingleton<IDbContext, DbContext>();
         }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CompanyAPI.Model
 {
-    public class DbSetting
+    public class DbSettings
     {
         public string Connection { get; set; }
     }

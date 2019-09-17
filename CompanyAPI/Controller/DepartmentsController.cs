@@ -15,7 +15,7 @@ namespace CompanyAPI.Controller
         public class DepartmentsController : ControllerBase
         {
             private readonly IBaseInterface<DepartmentDto, Department> _departmentRepository;
-            // GET api/values
+
             public DepartmentsController(IBaseInterface<DepartmentDto, Department> departmentRepository)
             {
                 _departmentRepository = departmentRepository;
@@ -46,9 +46,9 @@ namespace CompanyAPI.Controller
             {
                 if (validateCreate(department))
                 {
-                _departmentRepository.Create(department.GetDepartment());
+                 var retVal =_departmentRepository.Create(department.GetDepartment());
 
-                    if (_departmentRepository.Create(department.GetDepartment()) == false)
+                    if (retVal == false)
                     {
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
@@ -71,9 +71,9 @@ namespace CompanyAPI.Controller
             {
                 if (validateUpdate(department))
                 {
-                _departmentRepository.Update(department, id);
+                var retVal =_departmentRepository.Update(department, id);
 
-                    if (_departmentRepository.Update(department, id) == false)
+                    if (retVal == false)
                     {
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
