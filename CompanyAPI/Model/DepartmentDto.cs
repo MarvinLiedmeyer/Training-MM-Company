@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace ConsoleApp.Model
+namespace CompanyAPI.Model
 {
-    public class Department
+    public class DepartmentDto
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public int CompanyId { get; internal set; }
+        public int CompanyId { get; set; }
+
         public string CompanyName { get; set; }
     }
 }

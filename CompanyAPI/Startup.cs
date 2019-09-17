@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CompanyAPI.Helper;
+using CompanyAPI.Interface;
+using CompanyAPI.Model;
+using CompanyAPI.Repository;
+using ConsoleApp.Model;
+using ConsoleApp.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,7 +32,14 @@ namespace CompanyAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.Configure<DbSettings>(Configuration.GetSection("DbSettings"));
+
+            services.AddScoped<IBaseInterface<CompanyDto, Company>, CompanyRepository>();
+            services.AddScoped<IBaseInterface<DepartmentDto, Department>, DepartmentRepository>();
+
+            services.AddSingleton<IDbContext, DbContext>();
         }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
