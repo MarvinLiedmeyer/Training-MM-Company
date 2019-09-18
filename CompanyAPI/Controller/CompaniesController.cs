@@ -47,6 +47,7 @@ namespace CompanyAPI.Controller
                         _logger.LogError(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status409Conflict);
                 }
+                _logger.LogInformation("SUCCES");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
@@ -73,11 +74,13 @@ namespace CompanyAPI.Controller
                         _logger.LogError(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status503ServiceUnavailable);
                     case RepoResultType.NOTFOUND:
+                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status409Conflict);
                     case RepoResultType.WRONGPARAMETER:
                         _logger.LogWarning(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status400BadRequest);
                 }
+                _logger.LogInformation("SUCCES");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
@@ -115,10 +118,13 @@ namespace CompanyAPI.Controller
                         _logger.LogError(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status503ServiceUnavailable);
                     case RepoResultType.NOTFOUND:
+                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status409Conflict);
                     case RepoResultType.WRONGPARAMETER:
+                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status400BadRequest);
                 }
+                _logger.LogInformation("SUCCES");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
@@ -146,6 +152,7 @@ namespace CompanyAPI.Controller
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
+            _logger.LogInformation("SUCCES");
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
@@ -159,8 +166,10 @@ namespace CompanyAPI.Controller
                 var retVal = _companyRepository.Delete(id);
                 if (retVal)
                 {
+                    _logger.LogInformation("SUCCES");
                     return StatusCode(StatusCodes.Status204NoContent, $"Deleted {id}");
                 }
+                _logger.LogWarning("Bad Request");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
             catch (RepoException repoEx)
@@ -171,10 +180,13 @@ namespace CompanyAPI.Controller
                         _logger.LogError(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status503ServiceUnavailable);
                     case RepoResultType.NOTFOUND:
+                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status409Conflict);
                     case RepoResultType.WRONGPARAMETER:
+                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status400BadRequest);
                 }
+                _logger.LogInformation("SUCCES");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
             
