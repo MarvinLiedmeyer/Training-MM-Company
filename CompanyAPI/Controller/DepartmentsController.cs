@@ -33,7 +33,7 @@ namespace CompanyAPI.Controller
             public IActionResult Get(int id)
             {
                 var retVal = _departmentRepository.ReadId(id);
-                if (_departmentRepository.ReadId(id) == null)
+                if (retVal == null)
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
@@ -69,9 +69,11 @@ namespace CompanyAPI.Controller
             [HttpPut("{id}")]
             public IActionResult Put(int id, [FromBody] DepartmentDto department)
             {
+            if (_departmentRepository.ReadId(id) != null)
+            {
                 if (validateUpdate(department))
                 {
-                var retVal =_departmentRepository.Update(department, id);
+                    var retVal = _departmentRepository.Update(department, id);
 
                     if (retVal == false)
                     {
@@ -83,7 +85,8 @@ namespace CompanyAPI.Controller
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-
+            }
+            return StatusCode(StatusCodes.Status404NotFound);
             }
 
             // DELETE api/values/5
