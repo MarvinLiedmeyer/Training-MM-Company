@@ -40,6 +40,8 @@ namespace ConsoleApp.Repository
         public async  Task<List<Company>> Read()
         {
             List<Company> retval = new List<Company>();
+            try
+            {
                 using (var sqlConn =  _dbContext.GetConnection())
                 {
                     retval = (await sqlConn.QueryAsync<Company>(sqlCommSel)).AsList();
@@ -50,7 +52,13 @@ namespace ConsoleApp.Repository
 
 
                 }
-                throw new RepoException("Sql Error occured.", RepoResultType.SQLERROR);
+            }
+            catch (SqlException ex)
+            {
+
+                throw new RepoException("Sql Error occured.", ex, RepoResultType.SQLERROR);
+            }
+            return retval;
         }
         public async Task<CompanyDto> ReadId(int id)
         {
@@ -59,6 +67,8 @@ namespace ConsoleApp.Repository
             {
                 throw new RepoException(RepoResultType.WRONGPARAMETER);
             }
+            try
+            {
                 using (var sqlConn = _dbContext.GetConnection())
                 {
                     var param = new DynamicParameters();
@@ -70,7 +80,12 @@ namespace ConsoleApp.Repository
                     }
 
                 }
-                throw new RepoException("Sql Error occured.", RepoResultType.SQLERROR); 
+            }
+            catch (SqlException ex)
+            {
+                throw new RepoException("Sql Error occured.", ex, RepoResultType.SQLERROR); 
+            }
+            return retval;
         }
 
         public Task<bool> Update(CompanyDto model, int id)
@@ -98,6 +113,9 @@ namespace ConsoleApp.Repository
             {
                 throw new RepoException(RepoResultType.WRONGPARAMETER);
             }
+            
+            try
+            {
                 using (var sqlConn =  _dbContext.GetConnection())
                 {
                     var result = await sqlConn.ExecuteAsync(query, param);
@@ -107,13 +125,20 @@ namespace ConsoleApp.Repository
                         throw new RepoException(RepoResultType.NOTFOUND);
                     }
                 }
+            }
+            catch (SqlException ex)
+            {
 
-                throw new RepoException("SQL-ERROR occured", RepoResultType.SQLERROR);
+                throw new RepoException("SQL-ERROR occured", ex, RepoResultType.SQLERROR);
+            }
+            return retval;
         }
         private async Task<bool> CreateOrUpdate(Company model)
         {
             var query = sqlCommAddOrUpdate;
             Company retval;
+            try
+            {
                 using (var sqlConn = _dbContext.GetConnection())
                 {
                     DynamicParameters param = new DynamicParameters();
@@ -127,8 +152,13 @@ namespace ConsoleApp.Repository
                         throw new RepoException(RepoResultType.NOTFOUND);
                     }
                 }
+            }
+            catch (SqlException ex)
+            {
 
-                throw new RepoException("SQL-ERROR occured", RepoResultType.SQLERROR);
+                throw new RepoException("SQL-ERROR occured", ex, RepoResultType.SQLERROR);
+            }
+            return retval != null;
         }
     }
 }
