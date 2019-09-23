@@ -27,13 +27,13 @@ namespace CompanyAPI.Controller
             _companyRepository = companyRepository;
         }
         [HttpGet] 
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             try
             {
                 //_logger.LogInformation($"hello from {Request.Headers["User-Agent"]}");
-                var retval = _companyRepository.Read();
-                _logger.LogInformation("SUCCES");
+                var retval = await _companyRepository.Read();
+                _logger.LogInformation("successful");
                 return Ok(retval);
             }
             catch (RepoException repoEx)
@@ -48,24 +48,24 @@ namespace CompanyAPI.Controller
                         _logger.LogError(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status409Conflict);
                 }
-                _logger.LogInformation("SUCCES");
+                _logger.LogWarning("Bad Request");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var retVal = _companyRepository.ReadId(id);
+                var retVal = await _companyRepository.ReadId(id);
                 if (_companyRepository.ReadId(id) == null)
                 {
                     _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-                _logger.LogInformation("SUCCES");
+                _logger.LogInformation("successful");
                 return StatusCode(StatusCodes.Status200OK, retVal);
             }catch(RepoException repoEx)
             {
@@ -81,35 +81,35 @@ namespace CompanyAPI.Controller
                         _logger.LogWarning(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status400BadRequest);
                 }
-                _logger.LogInformation("SUCCES");
+                _logger.LogInformation("successful");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
         // POST api/values
         [HttpPost]
-        public IActionResult Post([FromBody] CompanyDto company)
+        public async Task<IActionResult> Post([FromBody] CompanyDto company)
         {
             try
             {
                 if (validateCreate(company))
                 {
-                    var retVal = _companyRepository.Create(company.GetCompany());
+                    var retVal = await _companyRepository.Create(company.GetCompany());
 
                     if (retVal == false)
                     {
-                        _logger.LogError("Bad Request");
+                        _logger.LogWarning("Bad Request");
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
 
-                    _logger.LogInformation("SUCCES");
+                    _logger.LogInformation("successful");
                     return StatusCode(StatusCodes.Status201Created);
 
                 }
                 else
 
                 {
-                    _logger.LogError("Bad Request");
+                    _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
@@ -125,10 +125,10 @@ namespace CompanyAPI.Controller
                         _logger.LogWarning(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status409Conflict);
                     case RepoResultType.WRONGPARAMETER:
-                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
+                        _logger.LogWarning("Wrong Parameter",repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status400BadRequest);
                 }
-                _logger.LogInformation("SUCCES");
+                _logger.LogInformation("successful");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
@@ -137,17 +137,17 @@ namespace CompanyAPI.Controller
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public IActionResult Put(int id,  [FromBody] CompanyDto company)
+        public async Task<IActionResult> Put(int id,  [FromBody] CompanyDto company)
         {
             if (_companyRepository.ReadId(id) != null)
             {
                 if (validateUpdate(company))
                 {
-                    var retVal = _companyRepository.Update(company, id);
+                    var retVal = await _companyRepository.Update(company, id);
 
                     if (retVal == false)
                     {
-                        _logger.LogError("Bad Request");
+                        _logger.LogWarning("Bad Request");
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
                     _logger.LogInformation("No Content");
@@ -155,25 +155,25 @@ namespace CompanyAPI.Controller
                 }
                 else
                 {
-                    _logger.LogError("Bad Request");
+                    _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
-            _logger.LogInformation("SUCCES");
+            _logger.LogInformation("successful");
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public IActionResult Delete( int id )
+        public async Task<IActionResult> Delete( int id )
         {
             
             try
             {
-                var retVal = _companyRepository.Delete(id);
+                var retVal = await _companyRepository.Delete(id);
                 if (retVal)
                 {
-                    _logger.LogInformation("SUCCES");
+                    _logger.LogInformation("successful");
                     return StatusCode(StatusCodes.Status204NoContent, $"Deleted {id}");
                 }
                 _logger.LogWarning("Bad Request");
@@ -193,7 +193,7 @@ namespace CompanyAPI.Controller
                         _logger.LogWarning(repoEx.InnerException, repoEx.Message);
                         return StatusCode(StatusCodes.Status400BadRequest);
                 }
-                _logger.LogInformation("SUCCES");
+                _logger.LogInformation("successful");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
