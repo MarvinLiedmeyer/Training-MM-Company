@@ -31,8 +31,9 @@ namespace CompanyAPI.Controller
         {
             try
             {
-                _logger.LogInformation($"hello from {Request.Headers["User-Agent"]}");
+                //_logger.LogInformation($"hello from {Request.Headers["User-Agent"]}");
                 var retval = _companyRepository.Read();
+                _logger.LogInformation("SUCCES");
                 return Ok(retval);
             }
             catch (RepoException repoEx)
@@ -64,7 +65,7 @@ namespace CompanyAPI.Controller
                     _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-                _logger.LogInformation("Succesful");
+                _logger.LogInformation("SUCCES");
                 return StatusCode(StatusCodes.Status200OK, retVal);
             }catch(RepoException repoEx)
             {
@@ -97,15 +98,18 @@ namespace CompanyAPI.Controller
 
                     if (retVal == false)
                     {
+                        _logger.LogError("Bad Request");
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
 
+                    _logger.LogInformation("SUCCES");
                     return StatusCode(StatusCodes.Status201Created);
 
                 }
                 else
 
                 {
+                    _logger.LogError("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
@@ -143,12 +147,15 @@ namespace CompanyAPI.Controller
 
                     if (retVal == false)
                     {
+                        _logger.LogError("Bad Request");
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
+                    _logger.LogInformation("No Content");
                     return NoContent();
                 }
                 else
                 {
+                    _logger.LogError("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
@@ -189,7 +196,6 @@ namespace CompanyAPI.Controller
                 _logger.LogInformation("SUCCES");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
-            
         }
 
         private bool validateCreate(CompanyDto company)
