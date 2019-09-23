@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using ConsoleApp.Model;
 
 namespace CompanyAPI.Interface
 {
     public interface IBaseInterface<T, D>
     {
-        bool Create(T data);
-        List<D> Read();
-        bool Update(T data, int id);
-        T ReadId(int id);
-        bool Delete(int id);
+        Task<bool> Create(T data);
+        Task<List<D>> Read();
+        Task<bool> Update(T data, int id);
+        Task<T> ReadId(int id);
+        Task<bool> Delete(int id);
     }
 }
