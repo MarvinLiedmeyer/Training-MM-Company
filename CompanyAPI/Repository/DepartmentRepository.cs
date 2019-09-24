@@ -25,7 +25,7 @@ namespace CompanyAPI.Repository
             _dbContext = dbContext;
         }
 
-        public bool Create(DepartmentDto data)
+        public Task<bool> Create(DepartmentDto data)
         {
             Department newModel = new Department()
             {
@@ -36,29 +36,29 @@ namespace CompanyAPI.Repository
             return CreateOrUpdate(newModel);
         }
 
-        public List<Department> Read()
+        public async Task<List<Department>> Read()
         {
             List<Department> retval = new List<Department>();
             using (var sqlConn = _dbContext.GetConnection())
             {
-                retval = sqlConn.Query<Department>(sqlCommSel).AsList();
+                retval = (await sqlConn.QueryAsync<Department>(sqlCommSel)).AsList();
             }
             return retval;
         }
 
-        public DepartmentDto ReadId(int id)
+        public async Task<DepartmentDto> ReadId(int id)
         {
             DepartmentDto retval = new DepartmentDto();
             using (var sqlConn = _dbContext.GetConnection())
             {
                 var param = new DynamicParameters();
                 param.Add("@id", id);
-                retval = sqlConn.QueryFirstOrDefault<DepartmentDto>(sqlCommSelId, param);
+                retval = await sqlConn.QueryFirstOrDefaultAsync<DepartmentDto>(sqlCommSelId, param);
             }
             return retval;
         }
 
-        public bool Update(DepartmentDto model, int id)
+        public  Task<bool> Update(DepartmentDto model, int id)
         {
             Department newModel = new Department()
             {
@@ -70,7 +70,7 @@ namespace CompanyAPI.Repository
             return CreateOrUpdate(newModel);
         }
 
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
             bool retval = false;
             var query = sqlCommDel;
@@ -78,12 +78,12 @@ namespace CompanyAPI.Repository
             param.Add("@id", id);
             using (var sqlConn = _dbContext.GetConnection())
             {
-                var result = sqlConn.Execute(query, param);
+                var result = await sqlConn.ExecuteAsync(query, param);
                 retval = (result == 1);
             }
             return retval;
         }
-        private bool CreateOrUpdate(Department model)
+        private async Task<bool> CreateOrUpdate(Department model)
         {
             var query = sqlCommAddOrUpdate;
             Department retval;
@@ -94,7 +94,7 @@ namespace CompanyAPI.Repository
                     new { model.Id, model.Name, model.Description, model.CompanyId }
                     );
 
-                retval = sqlConn.QueryFirstOrDefault<Department>(query, param, commandType: CommandType.StoredProcedure);
+                retval = await sqlConn.QueryFirstOrDefaultAsync<Department>(query, param, commandType: CommandType.StoredProcedure);
             }
             return retval != null;
         }
