@@ -135,6 +135,15 @@ namespace ConsoleApp.Repository
         }
         private async Task<bool> CreateOrUpdate(Company model)
         {
+            if (model.FoundedDate != null)
+            {
+                var date = (DateTime)model.FoundedDate;
+                var minDate = new DateTime(1753, 1, 1);
+                if (DateTime.Compare(minDate, date) > 0)
+                {
+                    throw new RepoException(RepoResultType.WRONGPARAMETER);
+                }
+            }
             var query = sqlCommAddOrUpdate;
             Company retval;
             try
@@ -147,7 +156,7 @@ namespace ConsoleApp.Repository
                         );
 
                     retval = await sqlConn.QueryFirstOrDefaultAsync<Company>(query, param, commandType: CommandType.StoredProcedure);
-                    if (retval== null)
+                    if (retval == null)
                     {
                         throw new RepoException(RepoResultType.NOTFOUND);
                     }
