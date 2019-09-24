@@ -6,7 +6,7 @@ using ConsoleApp.Model;
 
 namespace CompanyAPI.Interface
 {
-    public interface IBaseInterface<T, D>
+    public interface IBaseInterface<T,D>
     {
         Task<bool> Create(T data);
         Task<List<D>> Read();
