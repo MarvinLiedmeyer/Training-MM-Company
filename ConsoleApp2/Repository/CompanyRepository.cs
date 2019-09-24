@@ -91,7 +91,7 @@ namespace ConsoleApp.Repository
         public bool Delete(int id)
         {
             bool retval = false;
-            var query = $"update company set DeleteTime = GetDate() where id = @id";
+            var query = $"update company set DeleteTime = GetDate() where id = @id AND DeleTime = NULL";
 
             using (SqlConnection sqlcon = new SqlConnection(connectionString))
             {

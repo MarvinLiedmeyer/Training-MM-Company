@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
+
 namespace CompanyAPI.Controller
 {
     [Route("companies")]
@@ -29,36 +30,22 @@ namespace CompanyAPI.Controller
         [HttpGet] 
         public async Task<IActionResult> Get()
         {
-            try
-            {
-                //_logger.LogInformation($"hello from {Request.Headers["User-Agent"]}");
-                var retval = await _companyRepository.Read();
-                _logger.LogInformation("successful");
-                return Ok(retval);
-            }
-            catch (RepoException repoEx)
-            {
 
-                switch (repoEx.ExType)
-                {
-                    case RepoResultType.SQLERROR:
-                        _logger.LogError(repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status503ServiceUnavailable);
-                    case RepoResultType.NOTFOUND:
-                        _logger.LogError(repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status409Conflict);
-                }
-                _logger.LogWarning("Bad Request");
-                return StatusCode(StatusCodes.Status400BadRequest);
-            }
+            var user = Authorization.GetUser(HttpContext);
+
+            
+
+            //_logger.LogInformation($"hello from {Request.Headers["User-Agent"]}");
+            var retval = await _companyRepository.Read();
+            _logger.LogInformation("successful");
+            return Ok(retval);
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            try
-            {
+            
                 var retVal = await _companyRepository.ReadId(id);
                 if (_companyRepository.ReadId(id) == null)
                 {
@@ -67,31 +54,14 @@ namespace CompanyAPI.Controller
                 }
                 _logger.LogInformation("successful");
                 return StatusCode(StatusCodes.Status200OK, retVal);
-            }catch(RepoException repoEx)
-            {
-                switch (repoEx.ExType)
-                {
-                    case RepoResultType.SQLERROR:
-                        _logger.LogError(repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status503ServiceUnavailable);
-                    case RepoResultType.NOTFOUND:
-                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    case RepoResultType.WRONGPARAMETER:
-                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status400BadRequest);
-                }
-                _logger.LogInformation("successful");
-                return StatusCode(StatusCodes.Status400BadRequest);
-            }
+            
         }
 
         // POST api/values
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CompanyDto company)
         {
-            try
-            {
+           
                 if (validateCreate(company))
                 {
                     var retVal = await _companyRepository.Create(company.GetCompany());
@@ -112,25 +82,7 @@ namespace CompanyAPI.Controller
                     _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-            }
-            catch (RepoException repoEx)
-            {
-
-                switch (repoEx.ExType)
-                {
-                    case RepoResultType.SQLERROR:
-                        _logger.LogError(repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status503ServiceUnavailable);
-                    case RepoResultType.NOTFOUND:
-                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    case RepoResultType.WRONGPARAMETER:
-                        _logger.LogWarning("Wrong Parameter",repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status400BadRequest);
-                }
-                _logger.LogInformation("successful");
-                return StatusCode(StatusCodes.Status400BadRequest);
-            }
+         
         }
 
         
@@ -150,8 +102,8 @@ namespace CompanyAPI.Controller
                         _logger.LogWarning("Bad Request");
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
-                    _logger.LogInformation("No Content");
-                    return NoContent();
+                    _logger.LogInformation("OK");
+                    return Ok();
                 }
                 else
                 {
@@ -168,34 +120,16 @@ namespace CompanyAPI.Controller
         public async Task<IActionResult> Delete( int id )
         {
             
-            try
-            {
+           
                 var retVal = await _companyRepository.Delete(id);
                 if (retVal)
                 {
                     _logger.LogInformation("successful");
-                    return StatusCode(StatusCodes.Status204NoContent, $"Deleted {id}");
+                    return StatusCode(StatusCodes.Status200OK, $"Deleted {id}");
                 }
                 _logger.LogWarning("Bad Request");
                 return StatusCode(StatusCodes.Status400BadRequest);
-            }
-            catch (RepoException repoEx)
-            {
-                switch (repoEx.ExType)
-                {
-                    case RepoResultType.SQLERROR:
-                        _logger.LogError(repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status503ServiceUnavailable);
-                    case RepoResultType.NOTFOUND:
-                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    case RepoResultType.WRONGPARAMETER:
-                        _logger.LogWarning(repoEx.InnerException, repoEx.Message);
-                        return StatusCode(StatusCodes.Status400BadRequest);
-                }
-                _logger.LogInformation("successful");
-                return StatusCode(StatusCodes.Status400BadRequest);
-            }
+            
         }
 
         private bool validateCreate(CompanyDto company)
