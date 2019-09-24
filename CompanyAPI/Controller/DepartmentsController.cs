@@ -22,17 +22,17 @@ namespace CompanyAPI.Controller
             }
 
             [HttpGet]
-            public IActionResult Get()
+            public async Task<IActionResult> Get()
             {
-                var retval = _departmentRepository.Read();
+                var retval = await _departmentRepository.Read();
                 return Ok(retval);
             }
 
             // GET api/values/5
             [HttpGet("{id}")]
-            public IActionResult Get(int id)
+            public async Task<IActionResult> Get(int id)
             {
-                var retVal = _departmentRepository.ReadId(id);
+                var retVal = await _departmentRepository.ReadId(id);
                 if (retVal == null)
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
@@ -42,13 +42,13 @@ namespace CompanyAPI.Controller
 
             // POST api/values
             [HttpPost]
-            public IActionResult Post([FromBody] DepartmentDto department)
+            public async Task<IActionResult> Post([FromBody] DepartmentDto department)
             {
                 if (validateCreate(department))
                 {
-                 var retVal =_departmentRepository.Create(department);
+                 var retVal = await _departmentRepository.Create(department);
 
-                    if (retVal == false)
+                    if (!retVal)
                     {
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
@@ -67,15 +67,15 @@ namespace CompanyAPI.Controller
 
             // PUT api/values/5
             [HttpPut("{id}")]
-            public IActionResult Put(int id, [FromBody] DepartmentDto department)
+            public async Task<IActionResult> Put(int id, [FromBody] DepartmentDto department)
             {
             if (_departmentRepository.ReadId(id) != null)
             {
                 if (validateUpdate(department))
                 {
-                    var retVal = _departmentRepository.Update(department, id);
+                    var retVal = await _departmentRepository.Update(department, id);
 
-                    if (retVal == false)
+                    if (!retVal)
                     {
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
@@ -91,10 +91,10 @@ namespace CompanyAPI.Controller
 
             // DELETE api/values/5
             [HttpDelete("{id}")]
-            public IActionResult Delete(int id)
+            public async Task<IActionResult> Delete(int id)
             {
                 {
-                    var retVal = _departmentRepository.Delete(id);
+                    var retVal = await _departmentRepository.Delete(id);
                     if (retVal)
                     {
                         return StatusCode(StatusCodes.Status204NoContent, $"Delted {id}");
