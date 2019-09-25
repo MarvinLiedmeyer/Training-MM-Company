@@ -32,19 +32,19 @@ namespace CompanyAPI.Middleware
                 switch (ex.ExType)
                 {
                     case RepoResultType.SQLERROR:
-                        _logger.LogError("ServiceUnavailable- SQL Error");
+                        _logger.LogError(ex, "ServiceUnavailable- SQL Error");
                         context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
                         break;
                     case RepoResultType.NOTFOUND:
-                        _logger.LogWarning("Conflict - Not Found");
+                        _logger.LogWarning(ex, "Conflict - Not Found");
                         context.Response.StatusCode = (int)HttpStatusCode.Conflict;
                         break;
                     case RepoResultType.WRONGPARAMETER:
-                        _logger.LogWarning("Bad Request - Wrong Parameter");
+                        _logger.LogWarning(ex, "Bad Request - Wrong Parameter");
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                         break;
                     default:
-                        _logger.LogWarning("Conflict");
+                        _logger.LogWarning(ex, "Conflict");
                         context.Response.StatusCode = (int)HttpStatusCode.Conflict;
                         break;
                 }
