@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CompanyAPI.Helper;
 using CompanyAPI.Interface;
@@ -31,14 +32,11 @@ namespace CompanyAPI.Controller
         public async Task<IActionResult> Get()
         {
 
-            var user = Authorization.GetUser(HttpContext);
-
-            
-
             //_logger.LogInformation($"hello from {Request.Headers["User-Agent"]}");
             var retval = await _companyRepository.Read();
             _logger.LogInformation("successful");
             return Ok(retval);
+         
         }
 
         // GET api/values/5
@@ -61,7 +59,10 @@ namespace CompanyAPI.Controller
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CompanyDto company)
         {
-           
+            var user = Authorization.GetUser(HttpContext);
+
+            if (user.TobitUserID == 2062210)
+            {
                 if (validateCreate(company))
                 {
                     var retVal = await _companyRepository.Create(company.GetCompany());
@@ -82,6 +83,13 @@ namespace CompanyAPI.Controller
                     _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
+            }
+            else
+            {
+                _logger.LogWarning("Unauthorisiert");
+                return Unauthorized();
+            }
+            
          
         }
 
@@ -91,36 +99,47 @@ namespace CompanyAPI.Controller
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id,  [FromBody] CompanyDto company)
         {
-            if (_companyRepository.ReadId(id) != null)
+            var user = Authorization.GetUser(HttpContext);
+            if (user.TobitUserID == 2062210)
             {
-                if (validateUpdate(company))
+                if (_companyRepository.ReadId(id) != null)
                 {
-                    var retVal = await _companyRepository.Update(company, id);
+                    if (validateUpdate(company))
+                    {
+                        var retVal = await _companyRepository.Update(company, id);
 
-                    if (retVal == false)
+                        if (retVal == false)
+                        {
+                            _logger.LogWarning("Bad Request");
+                            return StatusCode(StatusCodes.Status400BadRequest);
+                        }
+                        _logger.LogInformation("OK");
+                        return Ok();
+                    }
+                    else
                     {
                         _logger.LogWarning("Bad Request");
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
-                    _logger.LogInformation("OK");
-                    return Ok();
                 }
-                else
-                {
-                    _logger.LogWarning("Bad Request");
-                    return StatusCode(StatusCodes.Status400BadRequest);
-                }
+                _logger.LogInformation("successful");
+                return StatusCode(StatusCodes.Status404NotFound);
             }
-            _logger.LogInformation("successful");
-            return StatusCode(StatusCodes.Status404NotFound);
+            else
+            {
+                _logger.LogWarning("Unauthorisiert");
+                return Unauthorized();
+            }
+            
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete( int id )
         {
-            
-           
+            var user = Authorization.GetUser(HttpContext);
+            if (user.TobitUserID == 2062210)
+            {
                 var retVal = await _companyRepository.Delete(id);
                 if (retVal)
                 {
@@ -129,6 +148,13 @@ namespace CompanyAPI.Controller
                 }
                 _logger.LogWarning("Bad Request");
                 return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            else
+            {
+                _logger.LogWarning("Unauthorisiert");
+                return Unauthorized();
+            }
+                
             
         }
 
