@@ -8,6 +8,7 @@ using CompanyAPI.Model;
 using ConsoleApp.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace CompanyAPI.Controller
 {
@@ -15,7 +16,7 @@ namespace CompanyAPI.Controller
         [ApiController]
         public class DepartmentsController : ControllerBase
         {
-        private readonly ILogger<CompaniesController> _logger;
+        private readonly ILogger<DepartmentsController> _logger;
         private readonly IBaseInterface<DepartmentDto, Department> _departmentRepository;
 
             public DepartmentsController(IBaseInterface<DepartmentDto, Department> departmentRepository)
