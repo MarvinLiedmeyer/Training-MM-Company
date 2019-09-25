@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ConsoleApp.Model
 {
-    class Address
+    public class Address
     {
         public int Id { get; set; }
         public string Street { get; set; }
