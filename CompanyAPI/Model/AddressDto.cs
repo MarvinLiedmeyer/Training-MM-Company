@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace ConsoleApp.Model
+namespace CompanyAPI.Model
 {
-    public class Address
+    public class AddressDto
     {
-        public int Id { get; set; }
         public string Street { get; set; }
         public string City { get; set; }
         public string Zip { get; set; }
