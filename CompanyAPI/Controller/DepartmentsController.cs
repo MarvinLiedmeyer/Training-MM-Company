@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CompanyAPI.Helper;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
 using ConsoleApp.Model;
@@ -14,7 +15,8 @@ namespace CompanyAPI.Controller
         [ApiController]
         public class DepartmentsController : ControllerBase
         {
-            private readonly IBaseInterface<DepartmentDto, Department> _departmentRepository;
+        private readonly ILogger<CompaniesController> _logger;
+        private readonly IBaseInterface<DepartmentDto, Department> _departmentRepository;
 
             public DepartmentsController(IBaseInterface<DepartmentDto, Department> departmentRepository)
             {
@@ -44,9 +46,12 @@ namespace CompanyAPI.Controller
             [HttpPost]
             public async Task<IActionResult> Post([FromBody] DepartmentDto department)
             {
+            var user = Authorization.GetUser(HttpContext);
+            if (user.TobitUserID == 2062210)
+            {
                 if (validateCreate(department))
                 {
-                 var retVal = await _departmentRepository.Create(department);
+                    var retVal = await _departmentRepository.Create(department);
 
                     if (!retVal)
                     {
@@ -62,6 +67,13 @@ namespace CompanyAPI.Controller
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
+            else
+            {
+                _logger.LogWarning("Unauthorisiert");
+                return Unauthorized();
+            }
+           
+            }
 
 
 
@@ -69,38 +81,55 @@ namespace CompanyAPI.Controller
             [HttpPut("{id}")]
             public async Task<IActionResult> Put(int id, [FromBody] DepartmentDto department)
             {
-            if (_departmentRepository.ReadId(id) != null)
+            var user = Authorization.GetUser(HttpContext);
+            if (user.TobitUserID == 2062210)
             {
-                if (validateUpdate(department))
+                if (_departmentRepository.ReadId(id) != null)
                 {
-                    var retVal = await _departmentRepository.Update(department, id);
+                    if (validateUpdate(department))
+                    {
+                        var retVal = await _departmentRepository.Update(department, id);
 
-                    if (!retVal)
+                        if (!retVal)
+                        {
+                            return StatusCode(StatusCodes.Status400BadRequest);
+                        }
+                        return NoContent();
+                    }
+                    else
                     {
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
-                    return NoContent();
                 }
-                else
-                {
-                    return StatusCode(StatusCodes.Status400BadRequest);
-                }
+                return StatusCode(StatusCodes.Status404NotFound);
             }
-            return StatusCode(StatusCodes.Status404NotFound);
+            else
+            {
+                _logger.LogWarning("Unauthorisiert");
+                return Unauthorized();
             }
+        }
+            
 
             // DELETE api/values/5
             [HttpDelete("{id}")]
             public async Task<IActionResult> Delete(int id)
             {
+            var user = Authorization.GetUser(HttpContext);
+            if (user.TobitUserID == 2062210)
+            {
+                var retVal = await _departmentRepository.Delete(id);
+                if (retVal)
                 {
-                    var retVal = await _departmentRepository.Delete(id);
-                    if (retVal)
-                    {
-                        return StatusCode(StatusCodes.Status204NoContent, $"Delted {id}");
-                    }
-                    return StatusCode(StatusCodes.Status400BadRequest);
+                    return StatusCode(StatusCodes.Status204NoContent, $"Delted {id}");
                 }
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            else
+            {
+                _logger.LogWarning("Unauthorisiert");
+                return Unauthorized();
+            }
             }
 
             private bool validateCreate(DepartmentDto department)
