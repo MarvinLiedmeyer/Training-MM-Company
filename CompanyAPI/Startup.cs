@@ -37,6 +37,8 @@ namespace CompanyAPI
 
             services.AddScoped<IBaseInterface<CompanyDto, Company>, CompanyRepository>();
             services.AddScoped<IBaseInterface<DepartmentDto, Department>, DepartmentRepository>();
+            services.AddScoped<IBaseInterface<EmployeeDto, Employee>, EmployeeRepository>();
+            services.AddScoped<IBaseInterface<AddressDto, Address>, AddressRepository>();
 
             services.AddSingleton<IDbContext, DbContext>();
         }
@@ -56,6 +58,7 @@ namespace CompanyAPI
 
             app.UseHttpsRedirection();
             app.UseRepoExceptionMiddleware();
+            app.UseAuthorizationMiddlewareExtension();
             app.UseMvc();
         }
     }
