@@ -10,12 +10,16 @@ namespace CompanyAPI.Helper
     {
         public static Model.Payloads GetUser(HttpContext context)
         {
-            string authHeader = context.Request.Headers["Authorization"];
+            string authHeader = context.Request.Headers["Authorization"].ToString();
             Model.Payloads retVal = new Model.Payloads();
-            if (authHeader != null)
+            if (!string.IsNullOrEmpty(authHeader))
             {
-                var authHeaderstr = context.Request.Headers["Authorization"].ToString();
-                var payload64str = authHeaderstr.Substring("Bearer ".Length).Trim().Split(".")[1];
+                var payload64str = authHeader.Substring("Bearer ".Length).Trim().Split(".")[1];
+                for (int i = 0; i < payload64str.Length % 4; i++)
+                {
+                    if (!(i == 2))
+                        payload64str += "=";
+                }
                 var payloadstr = System.Text.Encoding.ASCII.GetString(Convert.FromBase64String(payload64str));
                 retVal = Newtonsoft.Json.JsonConvert.DeserializeObject<Model.Payloads>(payloadstr);
             }
