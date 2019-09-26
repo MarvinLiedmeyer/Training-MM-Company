@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Chayns.Auth.ApiExtensions;
+using Chayns.Auth.Shared.Constants;
 using CompanyAPI.Helper;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
@@ -12,142 +14,117 @@ using Microsoft.Extensions.Logging;
 
 namespace CompanyAPI.Controller
 {
-        [Route("departments")]
-        [ApiController]
-        public class DepartmentsController : ControllerBase
-        {
+    [Route("departments")]
+    [ApiController]
+    public class DepartmentsController : ControllerBase
+    {
         private readonly ILogger<DepartmentsController> _logger;
         private readonly IBaseInterface<DepartmentDto, Department> _departmentRepository;
 
-            public DepartmentsController(IBaseInterface<DepartmentDto, Department> departmentRepository)
-            {
-                _departmentRepository = departmentRepository;
-            }
+        public DepartmentsController(IBaseInterface<DepartmentDto, Department> departmentRepository)
+        {
+            _departmentRepository = departmentRepository;
+        }
 
-            [HttpGet]
-            public async Task<IActionResult> Get()
-            {
-                var retval = await _departmentRepository.Read();
-                return Ok(retval);
-            }
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var retval = await _departmentRepository.Read();
+            return Ok(retval);
+        }
 
-            // GET api/values/5
-            [HttpGet("{id}")]
-            public async Task<IActionResult> Get(int id)
+        // GET api/values/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var retVal = await _departmentRepository.ReadId(id);
+            if (retVal == null)
             {
-                var retVal = await _departmentRepository.ReadId(id);
-                if (retVal == null)
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            return StatusCode(StatusCodes.Status200OK, retVal);
+        }
+
+        // POST api/values
+        [HttpPost]
+        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
+        public async Task<IActionResult> Post([FromBody] DepartmentDto department)
+        {
+            if (validateCreate(department))
+            {
+                var retVal = await _departmentRepository.Create(department);
+
+                if (!retVal)
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-                return StatusCode(StatusCodes.Status200OK, retVal);
-            }
 
-            // POST api/values
-            [HttpPost]
-            public async Task<IActionResult> Post([FromBody] DepartmentDto department)
+                return StatusCode(StatusCodes.Status201Created);
+
+            }
+            else
+
             {
-            var user = Authorization.GetUser(HttpContext);
-            if (user.TobitUserID == 2062210)
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+
+
+        // PUT api/values/5
+        [HttpPut("{id}")]
+        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
+        public async Task<IActionResult> Put(int id, [FromBody] DepartmentDto department)
+        {
+            if (_departmentRepository.ReadId(id) != null)
             {
-                if (validateCreate(department))
+                if (validateUpdate(department))
                 {
-                    var retVal = await _departmentRepository.Create(department);
+                    var retVal = await _departmentRepository.Update(department, id);
 
                     if (!retVal)
                     {
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
-
-                    return StatusCode(StatusCodes.Status201Created);
-
+                    return NoContent();
                 }
                 else
-
                 {
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
-            else
-            {
-                _logger.LogWarning("Unauthorisiert");
-                return Unauthorized();
-            }
-           
-            }
-
-
-
-            // PUT api/values/5
-            [HttpPut("{id}")]
-            public async Task<IActionResult> Put(int id, [FromBody] DepartmentDto department)
-            {
-            var user = Authorization.GetUser(HttpContext);
-            if (user.TobitUserID == 2062210)
-            {
-                if (_departmentRepository.ReadId(id) != null)
-                {
-                    if (validateUpdate(department))
-                    {
-                        var retVal = await _departmentRepository.Update(department, id);
-
-                        if (!retVal)
-                        {
-                            return StatusCode(StatusCodes.Status400BadRequest);
-                        }
-                        return NoContent();
-                    }
-                    else
-                    {
-                        return StatusCode(StatusCodes.Status400BadRequest);
-                    }
-                }
-                return StatusCode(StatusCodes.Status404NotFound);
-            }
-            else
-            {
-                _logger.LogWarning("Unauthorisiert");
-                return Unauthorized();
-            }
+            return StatusCode(StatusCodes.Status404NotFound);
         }
-            
 
-            // DELETE api/values/5
-            [HttpDelete("{id}")]
-            public async Task<IActionResult> Delete(int id)
-            {
-            var user = Authorization.GetUser(HttpContext);
-            if (user.TobitUserID == 2062210)
-            {
-                var retVal = await _departmentRepository.Delete(id);
-                if (retVal)
-                {
-                    return StatusCode(StatusCodes.Status204NoContent, $"Delted {id}");
-                }
-                return StatusCode(StatusCodes.Status400BadRequest);
-            }
-            else
-            {
-                _logger.LogWarning("Unauthorisiert");
-                return Unauthorized();
-            }
-            }
 
-            private bool validateCreate(DepartmentDto department)
+        // DELETE api/values/5
+        [HttpDelete("{id}")]
+        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var retVal = await _departmentRepository.Delete(id);
+            if (retVal)
             {
-                if (department.Name != null && department.Description != null  && department.CompanyId != null)
-                {
-                    return true;
-                }
-                return false;
+                return StatusCode(StatusCodes.Status204NoContent, $"Delted {id}");
             }
-            private bool validateUpdate(DepartmentDto department)
-            {
-                if (department.Name != null && department.Description != null && department.CompanyId != null)
-                {
-                    return true;
-                }
-                return false;
-            }
+            return StatusCode(StatusCodes.Status400BadRequest);
         }
+
+        private bool validateCreate(DepartmentDto department)
+        {
+            if (department.Name != null && department.Description != null && department.CompanyId != null)
+            {
+                return true;
+            }
+            return false;
+        }
+        private bool validateUpdate(DepartmentDto department)
+        {
+            if (department.Name != null && department.Description != null && department.CompanyId != null)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
 }
