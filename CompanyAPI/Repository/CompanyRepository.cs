@@ -12,11 +12,16 @@ namespace CompanyAPI.Repository
 {
     public class CompanyRepository : IBaseInterface<CompanyDto, Company>
     {
+        // Entity Framework zum Abfragen, Einfügen und Löschen von Daten
         private readonly IDbContext _dbContext;
+        // -------------------------------------------------------------
+
+        // SQL Abfrage -----------------------------------------------------------------------------------------------------------------
         private const string SqlCommSel = "SELECT Id, Name, FoundedDate FROM Company WHERE DeleteTime IS NULL";
         private const string SqlCommSelId = "SELECT Id, Name, FoundedDate from Company WHERE Id = @id and DeleteTime IS NULL";
         private const string SqlCommDel = "UPDATE company SET DeleteTime = GetDate() WHERE id = @id";
         private const string SqlCommAddOrUpdate = "spCreateCompany";
+        // -----------------------------------------------------------------------------------------------------------------------------
 
         public CompanyRepository(IDbContext dbContext)
         {
@@ -38,7 +43,11 @@ namespace CompanyAPI.Repository
             List<Company> retval;
             try
             {
+
+                // stellt die Verbindung zur Datenbank URL her ------
                 using (var sqlConn = _dbContext.GetConnection())
+                // --------------------------------------------------
+
                 {
                     retval = (await sqlConn.QueryAsync<Company>(SqlCommSel)).AsList();
                     if (retval == null)
