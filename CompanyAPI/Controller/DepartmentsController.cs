@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Chayns.Auth.ApiExtensions;
+using Chayns.Auth.Shared.Constants;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
 using ConsoleApp.Model;
