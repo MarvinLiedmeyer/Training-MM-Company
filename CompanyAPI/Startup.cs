@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Chayns.Auth.ApiExtensions;
 using CompanyAPI.Helper;
 using CompanyAPI.Interface;
 using CompanyAPI.Middleware;
@@ -34,6 +35,7 @@ namespace CompanyAPI
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.Configure<DbSettings>(Configuration.GetSection("DbSettings"));
+            services.AddChaynsAuth();
 
             services.AddScoped<IBaseInterface<CompanyDto, Company>, CompanyRepository>();
             services.AddScoped<IBaseInterface<DepartmentDto, Department>, DepartmentRepository>();
@@ -42,6 +44,7 @@ namespace CompanyAPI
 
             services.AddSingleton<IDbContext, DbContext>();
         }
+
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,9 +59,9 @@ namespace CompanyAPI
                 app.UseHsts();
             }
 
+            app.InitChaynsAuth();
             app.UseHttpsRedirection();
             app.UseRepoExceptionMiddleware();
-            app.UseAuthorizationMiddlewareExtension();
             app.UseMvc();
         }
     }

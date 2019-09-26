@@ -4,6 +4,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Chayns.Auth.ApiExtensions;
+using Chayns.Auth.Shared.Constants;
 using CompanyAPI.Helper;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
@@ -57,105 +59,75 @@ namespace CompanyAPI.Controller
 
         // POST api/values
         [HttpPost]
+        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
         public async Task<IActionResult> Post([FromBody] AddressDto address)
         {
-            var user = Authorization.GetUser(HttpContext);
-
-            if (user.TobitUserID == 2062210)
+            if (validateCreate(address))
             {
-                if (validateCreate(address))
-                {
-                    var retVal = await _addressRepository.Create(address);
+                var retVal = await _addressRepository.Create(address);
 
-                    if (retVal == false)
-                    {
-                        _logger.LogWarning("Bad Request");
-                        return StatusCode(StatusCodes.Status400BadRequest);
-                    }
-
-                    _logger.LogInformation("successful");
-                    return StatusCode(StatusCodes.Status201Created);
-
-                }
-                else
-
+                if (retVal == false)
                 {
                     _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
+
+                _logger.LogInformation("successful");
+                return StatusCode(StatusCodes.Status201Created);
+
             }
             else
+
             {
-                _logger.LogWarning("Unauthorisiert");
-                return Unauthorized();
+                _logger.LogWarning("Bad Request");
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
-
-
         }
 
 
 
         // PUT api/values/5
         [HttpPut("{id}")]
+        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
         public async Task<IActionResult> Put(int id, [FromBody] AddressDto address)
         {
-            var user = Authorization.GetUser(HttpContext);
-            if (user.TobitUserID == 2062210)
+            if (_addressRepository.ReadId(id) != null)
             {
-                if (_addressRepository.ReadId(id) != null)
+                if (validateUpdate(address))
                 {
-                    if (validateUpdate(address))
-                    {
-                        var retVal = await _addressRepository.Update(address, id);
+                    var retVal = await _addressRepository.Update(address, id);
 
-                        if (retVal == false)
-                        {
-                            _logger.LogWarning("Bad Request");
-                            return StatusCode(StatusCodes.Status400BadRequest);
-                        }
-                        _logger.LogInformation("OK");
-                        return Ok();
-                    }
-                    else
+                    if (retVal == false)
                     {
                         _logger.LogWarning("Bad Request");
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
+                    _logger.LogInformation("OK");
+                    return Ok();
                 }
-                _logger.LogInformation("successful");
-                return StatusCode(StatusCodes.Status404NotFound);
+                else
+                {
+                    _logger.LogWarning("Bad Request");
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
             }
-            else
-            {
-                _logger.LogWarning("Unauthorisiert");
-                return Unauthorized();
-            }
-
+            _logger.LogInformation("successful");
+            return StatusCode(StatusCodes.Status404NotFound);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
+        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
         public async Task<IActionResult> Delete(int id)
         {
-            var user = Authorization.GetUser(HttpContext);
-            if (user.TobitUserID == 2062210)
+            var retVal = await _addressRepository.Delete(id);
+            if (retVal)
             {
-                var retVal = await _addressRepository.Delete(id);
-                if (retVal)
-                {
-                    _logger.LogInformation("successful");
-                    return StatusCode(StatusCodes.Status200OK, $"Deleted {id}");
-                }
-                _logger.LogWarning("Bad Request");
-                return StatusCode(StatusCodes.Status400BadRequest);
+                _logger.LogInformation("successful");
+                return StatusCode(StatusCodes.Status200OK, $"Deleted {id}");
             }
-            else
-            {
-                _logger.LogWarning("Unauthorisiert");
-                return Unauthorized();
-            }
-
-
+            _logger.LogWarning("Bad Request");
+            return StatusCode(StatusCodes.Status400BadRequest);
         }
 
         private bool validateCreate(AddressDto address)
