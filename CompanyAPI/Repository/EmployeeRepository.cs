@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Text;
 using ConsoleApp.Model;
 using Dapper;
 using CompanyAPI.Model;
@@ -16,10 +15,10 @@ namespace ConsoleApp.Repository
     {
 
         private readonly IDbContext _dbContext;
-        string sqlCommSel = "select Id, FirstName, LastName, BeginDate, DepartmentId, AddressId from employee where DeleteTime is null";
-        string sqlCommSelId = "select Id,  FirstName, LastName, BeginDate, DepartmentId, AddressId from employee where Id = @id and DeleteTime is null";
-        string sqlCommDel = "update employee set DeleteTime = GetDate() where id = @id";
-        string employeeReadIdCmd = $"SELECT id,  FirstName, LastName, BeginDate, DepartmentId, AddressId from employee WHERE id = @id";
+        string sqlCommSel = "SELECT Id, FirstName, LastName, BeginDate, DepartmentId, AddressId FROM employee WHERE DeleteTime IS NULL";
+        string sqlCommSelId = "SELECT Id,  FirstName, LastName, BeginDate, DepartmentId, AddressId FROM employee WHERE Id = @id and DeleteTime IS NULL";
+        string sqlCommDel = "UPDATE employee SET DeleteTime = GetDate() WHERE id = @id";
+        string employeeReadIdCmd = $"SELECT id,  FirstName, LastName, BeginDate, DepartmentId, AddressId FROM employee WHERE id = @id";
         string sqlCommAddOrUpdate = "spCreateEmployee";
 
         public EmployeeRepository(IDbContext dbContext)
@@ -52,17 +51,15 @@ namespace ConsoleApp.Repository
                     {
                         throw new RepoException(RepoResultType.NOTFOUND);
                     }
-
-
                 }
             }
             catch (SqlException ex)
             {
-
                 throw new RepoException("Sql Error occured.", ex, RepoResultType.SQLERROR);
             }
             return retval;
         }
+
         public async Task<EmployeeDto> ReadId(int id)
         {
             EmployeeDto retval = new EmployeeDto();
@@ -81,7 +78,6 @@ namespace ConsoleApp.Repository
                     {
                         throw new RepoException(RepoResultType.NOTFOUND);
                     }
-
                 }
             }
             catch (SqlException ex)
@@ -119,7 +115,6 @@ namespace ConsoleApp.Repository
             {
                 throw new RepoException(RepoResultType.WRONGPARAMETER);
             }
-
             try
             {
                 using (var sqlConn = _dbContext.GetConnection())
@@ -134,7 +129,6 @@ namespace ConsoleApp.Repository
             }
             catch (SqlException ex)
             {
-
                 throw new RepoException("SQL-ERROR occured", ex, RepoResultType.SQLERROR);
             }
             return retval;
@@ -160,7 +154,6 @@ namespace ConsoleApp.Repository
                     param.AddDynamicParams(
                         new { model.Id, model.FirstName, model.LastName, model.BeginDate, model.DepartmentId, model.AddressId }
                         );
-
                     retval = await sqlConn.QueryFirstOrDefaultAsync<Employee>(query, param, commandType: CommandType.StoredProcedure);
                     if (retval == null)
                     {
@@ -170,7 +163,6 @@ namespace ConsoleApp.Repository
             }
             catch (SqlException ex)
             {
-
                 throw new RepoException("SQL-ERROR occured", ex, RepoResultType.SQLERROR);
             }
             return retval != null;

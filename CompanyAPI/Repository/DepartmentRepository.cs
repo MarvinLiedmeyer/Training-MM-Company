@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
@@ -14,10 +12,10 @@ namespace CompanyAPI.Repository
     {
         private readonly IDbContext _dbContext;
 
-        string sqlCommSel = "select [Department].Id, [Department].Name, Description, CompanyId, [Company].Name AS CompanyName from Department JOIN Company ON CompanyId = [Company].Id  where [Department].DeleteTime is null";
-        string sqlCommSelId = "select [Department].Id, [Department].Name, Description, [Company].Name from Department JOIN Company  ON CompanyId = [Company].Id from Department where Id = @id and [Department].DeleteTime is null";
-        string sqlCommDel = "update Department set DeleteTime = GetDate() where id = @id";
-        string companyReadIdCmd = $"SELECT [Department].id, [Department].name, Description, [Company].Name from Department JOIN Company ON CompanyId = [Company].Id from Department WHERE id = @id";
+        string sqlCommSel = "SELECT [Department].Id, [Department].Name, Description, CompanyId, [Company].Name AS CompanyName FROM Department JOIN Company ON CompanyId = [Company].Id  WHERE [Department].DeleteTime IS NULL";
+        string sqlCommSelId = "SELECT [Department].Id, [Department].Name, Description, [Company].Name FROM Department JOIN Company ON CompanyId = [Company].Id FROM Department WHERE Id = @id and [Department].DeleteTime IS NULL";
+        string sqlCommDel = "UPDATE Department SET DeleteTime = GetDate() WHERE id = @id";
+        string companyReadIdCmd = $"SELECT [Department].id, [Department].name, Description, [Company].Name FROM Department JOIN Company ON CompanyId = [Company].Id FROM                    Department WHERE id = @id";
         string sqlCommAddOrUpdate = "spCreateDepartment";
 
         public DepartmentRepository(IDbContext dbContext)
@@ -58,7 +56,7 @@ namespace CompanyAPI.Repository
             return retval;
         }
 
-        public  Task<bool> Update(DepartmentDto model, int id)
+        public Task<bool> Update(DepartmentDto model, int id)
         {
             Department newModel = new Department()
             {
@@ -93,7 +91,6 @@ namespace CompanyAPI.Repository
                 param.AddDynamicParams(
                     new { model.Id, model.Name, model.Description, model.CompanyId }
                     );
-
                 retval = await sqlConn.QueryFirstOrDefaultAsync<Department>(query, param, commandType: CommandType.StoredProcedure);
             }
             return retval != null;

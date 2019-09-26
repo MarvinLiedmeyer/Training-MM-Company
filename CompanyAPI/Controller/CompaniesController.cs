@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Chayns.Auth.ApiExtensions;
 using Chayns.Auth.Shared.Constants;
-using CompanyAPI.Helper;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
 using ConsoleApp.Model;
-using ConsoleApp.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -30,67 +23,53 @@ namespace CompanyAPI.Controller
             _logger = loggerFactory.CreateLogger<CompaniesController>();
             _companyRepository = companyRepository;
         }
+
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-
-            //_logger.LogInformation($"hello from {Request.Headers["User-Agent"]}");
             var retval = await _companyRepository.Read();
             _logger.LogInformation("successful");
             return Ok(retval);
 
         }
 
-        // GET api/values/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-
             var retVal = await _companyRepository.ReadId(id);
             if (_companyRepository.ReadId(id) == null)
             {
                 _logger.LogWarning("Bad Request");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
-            _logger.LogInformation("successful");
+            _logger.LogInformation("Successful");
             return StatusCode(StatusCodes.Status200OK, retVal);
-
         }
 
-        // POST api/values
         [HttpPost]
-        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
+        [ChaynsAuth]
         public async Task<IActionResult> Post([FromBody] CompanyDto company)
         {
             if (validateCreate(company))
             {
                 var retVal = await _companyRepository.Create(company.GetCompany());
-
                 if (retVal == false)
                 {
                     _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-
                 _logger.LogInformation("successful");
                 return StatusCode(StatusCodes.Status201Created);
-
             }
             else
-
             {
                 _logger.LogWarning("Bad Request");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
-
-
-
-
-        // PUT api/values/5
         [HttpPut("{id}")]
-        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
+        [ChaynsAuth]
         public async Task<IActionResult> Put(int id, [FromBody] CompanyDto company)
         {
             if (_companyRepository.ReadId(id) != null)
@@ -98,13 +77,12 @@ namespace CompanyAPI.Controller
                 if (validateUpdate(company))
                 {
                     var retVal = await _companyRepository.Update(company, id);
-
                     if (retVal == false)
                     {
                         _logger.LogWarning("Bad Request");
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
-                    _logger.LogInformation("OK");
+                    _logger.LogInformation("Successful");
                     return Ok();
                 }
                 else
@@ -113,13 +91,12 @@ namespace CompanyAPI.Controller
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
-            _logger.LogInformation("successful");
+            _logger.LogInformation("Not Found");
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
-        // DELETE api/values/5
         [HttpDelete("{id}")]
-        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
+        [ChaynsAuth]
         public async Task<IActionResult> Delete(int id)
         {
             var retVal = await _companyRepository.Delete(id);
@@ -136,16 +113,21 @@ namespace CompanyAPI.Controller
         {
             if (company.Name != null && company.FoundedDate != null)
             {
+                _logger.LogInformation("Validate accepted");
                 return true;
             }
+            _logger.LogInformation("Validate unaccepted");
             return false;
         }
+
         private bool validateUpdate(CompanyDto company)
         {
             if (company.Name != null && company.FoundedDate != null)
             {
+                _logger.LogInformation("Validate accepted");
                 return true;
             }
+            _logger.LogInformation("Validate unaccepted");
             return false;
         }
     }

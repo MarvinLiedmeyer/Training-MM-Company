@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Text;
 using ConsoleApp.Model;
 using Dapper;
 using CompanyAPI.Model;
@@ -14,11 +13,10 @@ namespace ConsoleApp.Repository
 {
     public class CompanyRepository : CompanyAPI.Interface.IBaseInterface<CompanyDto, Company>
     {
-
         private readonly IDbContext _dbContext;
-        string sqlCommSel = "select Id, Name, FoundedDate from Company where DeleteTime is null";
-        string sqlCommSelId = "select Id, Name, FoundedDate from Company where Id = @id and DeleteTime is null";
-        string sqlCommDel = "update company set DeleteTime = GetDate() where id = @id";
+        string sqlCommSel = "SELECT Id, Name, FoundedDate FROM Company WHERE DeleteTime IS NULL";
+        string sqlCommSelId = "SELECT Id, Name, FoundedDate from Company WHERE Id = @id and DeleteTime IS NULL";
+        string sqlCommDel = "UPDATE company SET DeleteTime = GetDate() WHERE id = @id";
         string companyReadIdCmd = $"SELECT id, name, foundeddate FROM company WHERE id = @id";
         string sqlCommAddOrUpdate = "spCreateCompany";
 
@@ -37,25 +35,22 @@ namespace ConsoleApp.Repository
             return CreateOrUpdate(newModel);
         }
 
-        public async  Task<List<Company>> Read()
+        public async Task<List<Company>> Read()
         {
             List<Company> retval = new List<Company>();
             try
             {
-                using (var sqlConn =  _dbContext.GetConnection())
+                using (var sqlConn = _dbContext.GetConnection())
                 {
                     retval = (await sqlConn.QueryAsync<Company>(sqlCommSel)).AsList();
                     if (retval == null)
                     {
                         throw new RepoException(RepoResultType.NOTFOUND);
                     }
-
-
                 }
             }
             catch (SqlException ex)
             {
-
                 throw new RepoException("Sql Error occured.", ex, RepoResultType.SQLERROR);
             }
             return retval;
@@ -83,7 +78,7 @@ namespace ConsoleApp.Repository
             }
             catch (SqlException ex)
             {
-                throw new RepoException("Sql Error occured.", ex, RepoResultType.SQLERROR); 
+                throw new RepoException("Sql Error occured.", ex, RepoResultType.SQLERROR);
             }
             return retval;
         }
@@ -109,14 +104,13 @@ namespace ConsoleApp.Repository
             var query = sqlCommDel;
             var param = new DynamicParameters();
             param.Add("@id", id);
-            if ( id < 1)
+            if (id < 1)
             {
                 throw new RepoException(RepoResultType.WRONGPARAMETER);
             }
-            
             try
             {
-                using (var sqlConn =  _dbContext.GetConnection())
+                using (var sqlConn = _dbContext.GetConnection())
                 {
                     var result = await sqlConn.ExecuteAsync(query, param);
                     retval = (result == 1);
@@ -128,11 +122,11 @@ namespace ConsoleApp.Repository
             }
             catch (SqlException ex)
             {
-
                 throw new RepoException("SQL-ERROR occured", ex, RepoResultType.SQLERROR);
             }
             return retval;
         }
+
         private async Task<bool> CreateOrUpdate(Company model)
         {
             if (model.FoundedDate != null)
@@ -154,7 +148,6 @@ namespace ConsoleApp.Repository
                     param.AddDynamicParams(
                         new { model.Id, model.Name, model.FoundedDate }
                         );
-
                     retval = await sqlConn.QueryFirstOrDefaultAsync<Company>(query, param, commandType: CommandType.StoredProcedure);
                     if (retval == null)
                     {
@@ -164,7 +157,6 @@ namespace ConsoleApp.Repository
             }
             catch (SqlException ex)
             {
-
                 throw new RepoException("SQL-ERROR occured", ex, RepoResultType.SQLERROR);
             }
             return retval != null;

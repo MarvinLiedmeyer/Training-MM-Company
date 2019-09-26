@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Chayns.Auth.ApiExtensions;
 using Chayns.Auth.Shared.Constants;
-using CompanyAPI.Helper;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
 using ConsoleApp.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 
 namespace CompanyAPI.Controller
 {
@@ -30,50 +27,47 @@ namespace CompanyAPI.Controller
         public async Task<IActionResult> Get()
         {
             var retval = await _departmentRepository.Read();
+            _logger.LogInformation("Successful");
             return Ok(retval);
         }
 
-        // GET api/values/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var retVal = await _departmentRepository.ReadId(id);
             if (retVal == null)
             {
+                _logger.LogWarning("Bad Request");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
+            _logger.LogInformation("Successful");
             return StatusCode(StatusCodes.Status200OK, retVal);
         }
 
-        // POST api/values
         [HttpPost]
-        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
+        [ChaynsAuth]
         public async Task<IActionResult> Post([FromBody] DepartmentDto department)
         {
             if (validateCreate(department))
             {
                 var retVal = await _departmentRepository.Create(department);
-
                 if (!retVal)
                 {
+                    _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-
+                _logger.LogInformation("Created");
                 return StatusCode(StatusCodes.Status201Created);
-
             }
             else
-
             {
+                _logger.LogWarning("Bad Request");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
-
-
-        // PUT api/values/5
         [HttpPut("{id}")]
-        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
+        [ChaynsAuth]
         public async Task<IActionResult> Put(int id, [FromBody] DepartmentDto department)
         {
             if (_departmentRepository.ReadId(id) != null)
@@ -81,32 +75,34 @@ namespace CompanyAPI.Controller
                 if (validateUpdate(department))
                 {
                     var retVal = await _departmentRepository.Update(department, id);
-
                     if (!retVal)
                     {
+                        _logger.LogWarning("Bad Request");
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
                     return NoContent();
                 }
                 else
                 {
+                    _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
+            _logger.LogWarning("Not Fount");
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
-
-        // DELETE api/values/5
         [HttpDelete("{id}")]
-        [ChaynsAuth(uac: Uac.Manager, uacSiteId: "77893-11893")]
+        [ChaynsAuth]
         public async Task<IActionResult> Delete(int id)
         {
             var retVal = await _departmentRepository.Delete(id);
             if (retVal)
             {
-                return StatusCode(StatusCodes.Status204NoContent, $"Delted {id}");
+                _logger.LogInformation("Delete");
+                return StatusCode(StatusCodes.Status200OK, $"Delted {id}");
             }
+            _logger.LogWarning("Bad Request");
             return StatusCode(StatusCodes.Status400BadRequest);
         }
 
@@ -114,16 +110,21 @@ namespace CompanyAPI.Controller
         {
             if (department.Name != null && department.Description != null && department.CompanyId != null)
             {
+                _logger.LogInformation("Validate accepted");
                 return true;
             }
+            _logger.LogInformation("Validate unaccepted");
             return false;
         }
+
         private bool validateUpdate(DepartmentDto department)
         {
             if (department.Name != null && department.Description != null && department.CompanyId != null)
             {
+                _logger.LogInformation("Validate accepted");
                 return true;
             }
+            _logger.LogInformation("Validate unaccepted");
             return false;
         }
     }
