@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ConsoleApp.Model;
 
 namespace CompanyAPI.Model
 {
@@ -13,8 +9,8 @@ namespace CompanyAPI.Model
 
         public CompanyDto GetCompany() => new CompanyDto
         {
-            Name = this.Name,
-            FoundedDate = this.FoundedDate
+            Name = Name,
+            FoundedDate = FoundedDate
         };
     }
 }

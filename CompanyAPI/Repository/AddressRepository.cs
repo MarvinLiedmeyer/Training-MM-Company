@@ -1,26 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Text;
-using ConsoleApp.Model;
-using Dapper;
-using CompanyAPI.Model;
-using CompanyAPI.Interface;
+﻿using System.Collections.Generic;
 using System.Data;
-using CompanyAPI.Helper;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
+using CompanyAPI.Helper;
+using CompanyAPI.Interface;
+using CompanyAPI.Model;
+using Dapper;
 
-namespace ConsoleApp.Repository
+namespace CompanyAPI.Repository
 {
-    public class AddressRepository : CompanyAPI.Interface.IBaseInterface<AddressDto, Address>
+    public class AddressRepository : IBaseInterface<AddressDto, Address>
     {
-
         private readonly IDbContext _dbContext;
-        string sqlCommSel = "select Id, Street, City, ZIP, Country from Address  where DeleteTime is null";
-        string sqlCommSelId = "select Id, Street, City, ZIP, Country from Address where Id = @id and DeleteTime is null";
-        string sqlCommDel = "update company set DeleteTime = GetDate() where id = @id";
-        string companyReadIdCmd = $"SELECT id, Street, City, ZIP, Country from Address WHERE id = @id";
-        string sqlCommAddOrUpdate = "spCreateAddress";
+        private const string SqlCommSel = "SELECT Id, Street, City, ZIP, Country FROM Address WHERE DeleteTime IS NULL";
+        private const string SqlCommSelId = "SELECT Id, Street, City, ZIP, Country FROM Address WHERE Id = @id AND DeleteTime IS NULL";
+        private const string SqlCommDel = "UPDATE company SET DeleteTime = GetDate() WHERE id = @id";
+        private const string SqlCommAddOrUpdate = "spCreateAddress";
 
         public AddressRepository(IDbContext dbContext)
         {
@@ -29,9 +24,8 @@ namespace ConsoleApp.Repository
 
         public Task<bool> Create(AddressDto data)
         {
-            Address newModel = new Address()
+            var newModel = new Address()
             {
-                
                 Street = data.Street,
                 City = data.City,
                 Zip = data.Zip,
@@ -42,30 +36,28 @@ namespace ConsoleApp.Repository
 
         public async Task<List<Address>> Read()
         {
-            List<Address> retval = new List<Address>();
+            List<Address> retval;
             try
             {
                 using (var sqlConn = _dbContext.GetConnection())
                 {
-                    retval = (await sqlConn.QueryAsync<Address>(sqlCommSel)).AsList();
+                    retval = (await sqlConn.QueryAsync<Address>(SqlCommSel)).AsList();
                     if (retval == null)
                     {
                         throw new RepoException(RepoResultType.NOTFOUND);
                     }
-
-
                 }
             }
             catch (SqlException ex)
             {
-
                 throw new RepoException("Sql Error occured.", ex, RepoResultType.SQLERROR);
             }
             return retval;
         }
+
         public async Task<AddressDto> ReadId(int id)
         {
-            AddressDto retval = new AddressDto();
+            AddressDto retval;
             if (id < 1)
             {
                 throw new RepoException(RepoResultType.WRONGPARAMETER);
@@ -76,12 +68,11 @@ namespace ConsoleApp.Repository
                 {
                     var param = new DynamicParameters();
                     param.Add("@id", id);
-                    retval = await sqlConn.QueryFirstOrDefaultAsync<AddressDto>(sqlCommSelId, param);
+                    retval = await sqlConn.QueryFirstOrDefaultAsync<AddressDto>(SqlCommSelId, param);
                     if (retval == null)
                     {
                         throw new RepoException(RepoResultType.NOTFOUND);
                     }
-
                 }
             }
             catch (SqlException ex)
@@ -97,7 +88,7 @@ namespace ConsoleApp.Repository
             {
                 throw new RepoException(RepoResultType.WRONGPARAMETER);
             }
-            Address newModel = new Address()
+            var newModel = new Address()
             {
                 Street = model.Street,
                 City = model.City,
@@ -109,21 +100,19 @@ namespace ConsoleApp.Repository
 
         public async Task<bool> Delete(int id)
         {
-            bool retval = false;
-            var query = sqlCommDel;
+            const string query = SqlCommDel;
             var param = new DynamicParameters();
             param.Add("@id", id);
             if (id < 1)
             {
                 throw new RepoException(RepoResultType.WRONGPARAMETER);
             }
-
             try
             {
                 using (var sqlConn = _dbContext.GetConnection())
                 {
                     var result = await sqlConn.ExecuteAsync(query, param);
-                    retval = (result == 1);
+                    var retval = (result == 1);
                     if (!retval)
                     {
                         throw new RepoException(RepoResultType.NOTFOUND);
@@ -132,25 +121,22 @@ namespace ConsoleApp.Repository
             }
             catch (SqlException ex)
             {
-
                 throw new RepoException("SQL-ERROR occured", ex, RepoResultType.SQLERROR);
             }
-            return retval;
+            return true;
         }
         private async Task<bool> CreateOrUpdate(Address model)
         {
-            var query = sqlCommAddOrUpdate;
-            Address retval;
+            const string query = SqlCommAddOrUpdate;
             try
             {
                 using (var sqlConn = _dbContext.GetConnection())
                 {
-                    DynamicParameters param = new DynamicParameters();
+                    var param = new DynamicParameters();
                     param.AddDynamicParams(
-                        new { model.Id, model.Street, model.City, model.Zip, model.Country}
+                        new { model.Id, model.Street, model.City, model.Zip, model.Country }
                         );
-
-                    retval = await sqlConn.QueryFirstOrDefaultAsync<Address>(query, param, commandType: CommandType.StoredProcedure);
+                    var retval = await sqlConn.QueryFirstOrDefaultAsync<Address>(query, param, commandType: CommandType.StoredProcedure);
                     if (retval == null)
                     {
                         throw new RepoException(RepoResultType.NOTFOUND);
@@ -159,10 +145,9 @@ namespace ConsoleApp.Repository
             }
             catch (SqlException ex)
             {
-
                 throw new RepoException("SQL-ERROR occured", ex, RepoResultType.SQLERROR);
             }
-            return retval != null;
+            return true;
         }
     }
 }

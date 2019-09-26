@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using CompanyAPI.Helper;
+﻿using System.Threading.Tasks;
+using Chayns.Auth.ApiExtensions;
+using Chayns.Auth.Shared.Constants;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
 using ConsoleApp.Model;
-using ConsoleApp.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -16,30 +11,30 @@ using Microsoft.Extensions.Logging;
 
 namespace CompanyAPI.Controller
 {
-    [Route("employees")]
+    [Route("api/{locationID:int}/employees")]
     [ApiController]
     public class EmployeesController : ControllerBase
     {
         private readonly ILogger<EmployeesController> _logger;
         private readonly IBaseInterface<EmployeeDto, Employee> _employeeRepository;
+        private readonly ITokenInfoProvider _tokenInfoProvider;
 
-        public EmployeesController(IBaseInterface<EmployeeDto, Employee> employeeRepository, ILoggerFactory loggerFactory)
+        public EmployeesController(IBaseInterface<EmployeeDto, Employee> employeeRepository, ILoggerFactory loggerFactory, ITokenInfoProvider tokenInfoProvider)
         {
             _logger = loggerFactory.CreateLogger<EmployeesController>();
             _employeeRepository = employeeRepository;
+            _tokenInfoProvider = tokenInfoProvider;
         }
+
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-
-            //_logger.LogInformation($"hello from {Request.Headers["User-Agent"]}");
+            _tokenInfoProvider.GetUserPayload();
             var retval = await _employeeRepository.Read();
             _logger.LogInformation("successful");
             return Ok(retval);
-
         }
 
-        // GET api/values/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -55,115 +50,77 @@ namespace CompanyAPI.Controller
 
         }
 
-        // POST api/values
         [HttpPost]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Post([FromBody] EmployeeDto employee)
         {
-            var user = Authorization.GetUser(HttpContext);
-
-            if (validateCreate(employee))
+            if (ValidateCreate(employee))
             {
                 var retVal = await _employeeRepository.Create(employee);
-
                 if (retVal == false)
                 {
                     _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
-
                 _logger.LogInformation("successful");
                 return StatusCode(StatusCodes.Status201Created);
-
             }
             else
-
             {
                 _logger.LogWarning("Bad Request");
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
-
-
-
-        // PUT api/values/5
         [HttpPut("{id}")]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Put(int id, [FromBody] EmployeeDto employee)
         {
-            var user = Authorization.GetUser(HttpContext);
-            if (user.TobitUserID == 2062210)
+            if (_employeeRepository.ReadId(id) != null)
             {
-                if (_employeeRepository.ReadId(id) != null)
+                if (ValidateUpdate(employee))
                 {
-                    if (validateUpdate(employee))
-                    {
-                        var retVal = await _employeeRepository.Update(employee, id);
-
-                        if (retVal == false)
-                        {
-                            _logger.LogWarning("Bad Request");
-                            return StatusCode(StatusCodes.Status400BadRequest);
-                        }
-                        _logger.LogInformation("OK");
-                        return Ok();
-                    }
-                    else
+                    var retVal = await _employeeRepository.Update(employee, id);
+                    if (retVal == false)
                     {
                         _logger.LogWarning("Bad Request");
                         return StatusCode(StatusCodes.Status400BadRequest);
                     }
+                    _logger.LogInformation("OK");
+                    return Ok();
                 }
-                _logger.LogInformation("successful");
-                return StatusCode(StatusCodes.Status404NotFound);
+                else
+                {
+                    _logger.LogWarning("Bad Request");
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
             }
-            else
-            {
-                _logger.LogWarning("Unauthorisiert");
-                return Unauthorized();
-            }
-
+            _logger.LogInformation("successful");
+            return StatusCode(StatusCodes.Status404NotFound);
         }
 
-        // DELETE api/values/5
         [HttpDelete("{id}")]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Delete(int id)
         {
-            var user = Authorization.GetUser(HttpContext);
-            if (user.TobitUserID == 2062210)
+            var retVal = await _employeeRepository.Delete(id);
+            if (retVal)
             {
-                var retVal = await _employeeRepository.Delete(id);
-                if (retVal)
-                {
-                    _logger.LogInformation("successful");
-                    return StatusCode(StatusCodes.Status200OK, $"Deleted {id}");
-                }
-                _logger.LogWarning("Bad Request");
-                return StatusCode(StatusCodes.Status400BadRequest);
+                _logger.LogInformation("successful");
+                return StatusCode(StatusCodes.Status200OK, $"Deleted {id}");
             }
-            else
-            {
-                _logger.LogWarning("Unauthorisiert");
-                return Unauthorized();
-            }
-
-
+            _logger.LogWarning("Bad Request");
+            return StatusCode(StatusCodes.Status400BadRequest);
         }
 
-        private bool validateCreate(EmployeeDto employee)
+        private static bool ValidateCreate(EmployeeDto employee)
         {
-            if (employee.FirstName != null && employee.LastName != null && employee.BeginDate != null && employee.DepartmentId != null && employee.AddressId != null)
-            {
-                return true;
-            }
-            return false;
+            return employee.FirstName != null && employee.LastName != null;
         }
-        private bool validateUpdate(EmployeeDto employee)
+
+        private static bool ValidateUpdate(EmployeeDto employee)
         {
-            if (employee.FirstName != null && employee.LastName != null && employee.BeginDate != null && employee.DepartmentId != null && employee.AddressId != null)
-            {
-                return true;
-            }
-            return false;
+            return employee.FirstName != null && employee.LastName != null;
         }
     }
 }
