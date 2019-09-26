@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CompanyAPI.Helper;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
-using ConsoleApp.Model;
 using Dapper;
 
 namespace CompanyAPI.Repository

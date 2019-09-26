@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CompanyAPI.Controller
 {
-    [Route("api/{locationID}/departments")]
+    [Route("api/{locationID:int}/departments")]
     [ApiController]
     public class DepartmentsController : ControllerBase
     {
@@ -45,7 +45,7 @@ namespace CompanyAPI.Controller
         }
 
         [HttpPost]
-        [ChaynsAuth]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Post([FromBody] DepartmentDto department)
         {
             if (ValidateCreate(department))
@@ -67,7 +67,7 @@ namespace CompanyAPI.Controller
         }
 
         [HttpPut("{id}")]
-        [ChaynsAuth]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Put(int id, [FromBody] DepartmentDto department)
         {
             if (_departmentRepository.ReadId(id) != null)
@@ -87,7 +87,7 @@ namespace CompanyAPI.Controller
         }
 
         [HttpDelete("{id}")]
-        [ChaynsAuth]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Delete(int id)
         {
             var retVal = await _departmentRepository.Delete(id);

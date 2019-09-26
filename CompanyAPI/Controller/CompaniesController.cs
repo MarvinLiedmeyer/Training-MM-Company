@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Chayns.Auth.ApiExtensions;
+using Chayns.Auth.Shared.Constants;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CompanyAPI.Controller
 {
-    [Route("api/{locationID}/companies")]
+    [Route("api/{locationID:int}/companies")]
     [ApiController]
     public class CompaniesController : ControllerBase
     {
@@ -45,7 +46,7 @@ namespace CompanyAPI.Controller
         }
 
         [HttpPost]
-        [ChaynsAuth]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Post([FromBody] CompanyDto company)
         {
             if (ValidateCreate(company))
@@ -67,7 +68,7 @@ namespace CompanyAPI.Controller
         }
 
         [HttpPut("{id}")]
-        [ChaynsAuth]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Put(int id, [FromBody] CompanyDto company)
         {
             if (_companyRepository.ReadId(id) != null)
@@ -94,7 +95,7 @@ namespace CompanyAPI.Controller
         }
 
         [HttpDelete("{id}")]
-        [ChaynsAuth]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Delete(int id)
         {
             var retVal = await _companyRepository.Delete(id);

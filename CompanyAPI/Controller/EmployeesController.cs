@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Chayns.Auth.ApiExtensions;
+using Chayns.Auth.Shared.Constants;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
 using ConsoleApp.Model;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CompanyAPI.Controller
 {
-    [Route("api/{locationID}/employees")]
+    [Route("api/{locationID:int}/employees")]
     [ApiController]
     public class EmployeesController : ControllerBase
     {
@@ -50,7 +51,7 @@ namespace CompanyAPI.Controller
         }
 
         [HttpPost]
-        [ChaynsAuth]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Post([FromBody] EmployeeDto employee)
         {
             if (ValidateCreate(employee))
@@ -72,7 +73,7 @@ namespace CompanyAPI.Controller
         }
 
         [HttpPut("{id}")]
-        [ChaynsAuth]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Put(int id, [FromBody] EmployeeDto employee)
         {
             if (_employeeRepository.ReadId(id) != null)
@@ -99,7 +100,7 @@ namespace CompanyAPI.Controller
         }
 
         [HttpDelete("{id}")]
-        [ChaynsAuth]
+        [ChaynsAuth(uac: Uac.Manager)]
         public async Task<IActionResult> Delete(int id)
         {
             var retVal = await _employeeRepository.Delete(id);

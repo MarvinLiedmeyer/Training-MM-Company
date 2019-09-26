@@ -14,10 +14,6 @@ namespace CompanyAPI.Provider
             _contextAccessor = contextAccessor;
         }
 
-        /// <summary>
-        /// Returns the locationId from current url path
-        /// </summary>
-        /// <returns>The locationId that is required</returns>
         public override Task<int?> GetRequiredLocationId()
         {
             // Get parts of current relative path
@@ -28,11 +24,6 @@ namespace CompanyAPI.Provider
 
             return int.TryParse(locationIdString, out var locationId) ? Task.FromResult((int?)locationId) : Task.FromResult(default(int?));
         }
-
-        /// <summary>
-        /// Not implemented
-        /// </summary>
-        /// <returns></returns>
         public override Task<string> GetRequiredSiteId() => Task.FromResult(default(string));
     }
 }
