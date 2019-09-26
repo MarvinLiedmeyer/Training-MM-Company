@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CompanyAPI.Controller
 {
-    [Route("departments")]
+    [Route("api/{locationID}/departments")]
     [ApiController]
     public class DepartmentsController : ControllerBase
     {
