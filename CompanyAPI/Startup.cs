@@ -1,5 +1,4 @@
 ﻿using Chayns.Auth.ApiExtensions;
-using Chayns.Auth.Shared.Constants;
 using CompanyAPI.Helper;
 using CompanyAPI.Interface;
 using CompanyAPI.Middleware;
@@ -7,10 +6,8 @@ using CompanyAPI.Model;
 using CompanyAPI.Provider;
 using CompanyAPI.Repository;
 using ConsoleApp.Model;
-using ConsoleApp.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,6 +22,7 @@ namespace CompanyAPI
 
         public IConfiguration Configuration { get; }
 
+        // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
             // Add authentication filter for only manager of the site {77893-11922} ----------------------------
@@ -36,7 +34,7 @@ namespace CompanyAPI
             services.Configure<DbSettings>(Configuration.GetSection("DbSettings"));
             // -----------------------------------------------------------------------
 
-            // Add required middlewares for authentication
+            // Add required middleware for authentication
             services.AddChaynsAuth();
             // -------------------------------------------
 
@@ -47,12 +45,14 @@ namespace CompanyAPI
             services.AddScoped<IBaseInterface<AddressDto, Address>, AddressRepository>();
             // ------------------------------------------------------------------------------------
 
-            // Add service singelton. They are created only one time per application and used for whole the life time
+            // Add service singleton. They are created only one time per application and used for whole the life time
             // Takes the Api-Settings for the context ---------------------------------------------------------------
             services.AddSingleton<IDbContext, DbContext>();
             // ------------------------------------------------------------------------------------------------------
         }
+        // ----------------------------------------------------------------------------------------
 
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -63,8 +63,9 @@ namespace CompanyAPI
             {
                 app.UseHsts();
             }
+            // ----------------------------------------------------------------------------------------------
 
-            // Add middlewares for Auth
+            // Add middleware for Auth
             app.InitChaynsAuth();
             // ------------------------
 
@@ -72,7 +73,7 @@ namespace CompanyAPI
             app.UseHttpsRedirection();
             // -----------------------------------------------------------------------
 
-            // Add middlewares for Exception --
+            // Add middleware for Exception --
             app.UseRepoExceptionMiddleware();
             // --------------------------------
 

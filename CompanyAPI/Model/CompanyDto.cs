@@ -9,8 +9,8 @@ namespace CompanyAPI.Model
 
         public CompanyDto GetCompany() => new CompanyDto
         {
-            Name = this.Name,
-            FoundedDate = this.FoundedDate
+            Name = Name,
+            FoundedDate = FoundedDate
         };
     }
 }

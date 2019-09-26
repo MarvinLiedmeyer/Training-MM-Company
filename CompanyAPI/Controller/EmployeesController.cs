@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Chayns.Auth.ApiExtensions;
-using Chayns.Auth.Shared.Constants;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
 using ConsoleApp.Model;
@@ -29,7 +28,7 @@ namespace CompanyAPI.Controller
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var user = _tokenInfoProvider.GetUserPayload();
+            _tokenInfoProvider.GetUserPayload();
             var retval = await _employeeRepository.Read();
             _logger.LogInformation("successful");
             return Ok(retval);
@@ -54,7 +53,7 @@ namespace CompanyAPI.Controller
         [ChaynsAuth]
         public async Task<IActionResult> Post([FromBody] EmployeeDto employee)
         {
-            if (validateCreate(employee))
+            if (ValidateCreate(employee))
             {
                 var retVal = await _employeeRepository.Create(employee);
                 if (retVal == false)
@@ -78,7 +77,7 @@ namespace CompanyAPI.Controller
         {
             if (_employeeRepository.ReadId(id) != null)
             {
-                if (validateUpdate(employee))
+                if (ValidateUpdate(employee))
                 {
                     var retVal = await _employeeRepository.Update(employee, id);
                     if (retVal == false)
@@ -113,22 +112,14 @@ namespace CompanyAPI.Controller
             return StatusCode(StatusCodes.Status400BadRequest);
         }
 
-        private bool validateCreate(EmployeeDto employee)
+        private static bool ValidateCreate(EmployeeDto employee)
         {
-            if (employee.FirstName != null && employee.LastName != null && employee.BeginDate != null && employee.DepartmentId != null && employee.AddressId != null)
-            {
-                return true;
-            }
-            return false;
+            return employee.FirstName != null && employee.LastName != null;
         }
 
-        private bool validateUpdate(EmployeeDto employee)
+        private static bool ValidateUpdate(EmployeeDto employee)
         {
-            if (employee.FirstName != null && employee.LastName != null && employee.BeginDate != null && employee.DepartmentId != null && employee.AddressId != null)
-            {
-                return true;
-            }
-            return false;
+            return employee.FirstName != null && employee.LastName != null;
         }
     }
 }

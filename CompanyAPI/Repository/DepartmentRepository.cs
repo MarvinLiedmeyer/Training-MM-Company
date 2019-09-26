@@ -8,15 +8,14 @@ using Dapper;
 
 namespace CompanyAPI.Repository
 {
-    public class DepartmentRepository : CompanyAPI.Interface.IBaseInterface<DepartmentDto, Department>
+    public class DepartmentRepository : IBaseInterface<DepartmentDto, Department>
     {
         private readonly IDbContext _dbContext;
 
-        string sqlCommSel = "SELECT [Department].Id, [Department].Name, Description, CompanyId, [Company].Name AS CompanyName FROM Department JOIN Company ON CompanyId = [Company].Id  WHERE [Department].DeleteTime IS NULL";
-        string sqlCommSelId = "SELECT [Department].Id, [Department].Name, Description, [Company].Name FROM Department JOIN Company ON CompanyId = [Company].Id FROM Department WHERE Id = @id and [Department].DeleteTime IS NULL";
-        string sqlCommDel = "UPDATE Department SET DeleteTime = GetDate() WHERE id = @id";
-        string companyReadIdCmd = $"SELECT [Department].id, [Department].name, Description, [Company].Name FROM Department JOIN Company ON CompanyId = [Company].Id FROM                    Department WHERE id = @id";
-        string sqlCommAddOrUpdate = "spCreateDepartment";
+        private const string SqlCommSel = "SELECT [Department].Id, [Department].Name, Description, CompanyId, [Company].Name AS CompanyName FROM Department JOIN Company ON CompanyId = [Company].Id  WHERE [Department].DeleteTime IS NULL";
+        private const string SqlCommSelId = "SELECT [Department].Id, [Department].Name, Description, [Company].Name FROM Department JOIN Company ON CompanyId = [Company].Id FROM Department WHERE Id = @id and [Department].DeleteTime IS NULL";
+        private const string SqlCommDel = "UPDATE Department SET DeleteTime = GetDate() WHERE id = @id";
+        private const string SqlCommAddOrUpdate = "spCreateDepartment";
 
         public DepartmentRepository(IDbContext dbContext)
         {
@@ -25,7 +24,7 @@ namespace CompanyAPI.Repository
 
         public Task<bool> Create(DepartmentDto data)
         {
-            Department newModel = new Department()
+            var newModel = new Department()
             {
                 Name = data.Name,
                 Description = data.Description,
@@ -36,29 +35,29 @@ namespace CompanyAPI.Repository
 
         public async Task<List<Department>> Read()
         {
-            List<Department> retval = new List<Department>();
+            List<Department> retval;
             using (var sqlConn = _dbContext.GetConnection())
             {
-                retval = (await sqlConn.QueryAsync<Department>(sqlCommSel)).AsList();
+                retval = (await sqlConn.QueryAsync<Department>(SqlCommSel)).AsList();
             }
             return retval;
         }
 
         public async Task<DepartmentDto> ReadId(int id)
         {
-            DepartmentDto retval = new DepartmentDto();
+            DepartmentDto retval;
             using (var sqlConn = _dbContext.GetConnection())
             {
                 var param = new DynamicParameters();
                 param.Add("@id", id);
-                retval = await sqlConn.QueryFirstOrDefaultAsync<DepartmentDto>(sqlCommSelId, param);
+                retval = await sqlConn.QueryFirstOrDefaultAsync<DepartmentDto>(SqlCommSelId, param);
             }
             return retval;
         }
 
         public Task<bool> Update(DepartmentDto model, int id)
         {
-            Department newModel = new Department()
+            var newModel = new Department()
             {
                 Id = id,
                 Name = model.Name,
@@ -70,8 +69,8 @@ namespace CompanyAPI.Repository
 
         public async Task<bool> Delete(int id)
         {
-            bool retval = false;
-            var query = sqlCommDel;
+            bool retval;
+            var query = SqlCommDel;
             var param = new DynamicParameters();
             param.Add("@id", id);
             using (var sqlConn = _dbContext.GetConnection())
@@ -83,11 +82,11 @@ namespace CompanyAPI.Repository
         }
         private async Task<bool> CreateOrUpdate(Department model)
         {
-            var query = sqlCommAddOrUpdate;
+            var query = SqlCommAddOrUpdate;
             Department retval;
+            var param = new DynamicParameters();
             using (var sqlConn = _dbContext.GetConnection())
             {
-                DynamicParameters param = new DynamicParameters();
                 param.AddDynamicParams(
                     new { model.Id, model.Name, model.Description, model.CompanyId }
                     );

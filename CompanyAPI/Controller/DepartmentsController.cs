@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Chayns.Auth.ApiExtensions;
-using Chayns.Auth.Shared.Constants;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
 using ConsoleApp.Model;
@@ -18,9 +17,10 @@ namespace CompanyAPI.Controller
         private readonly ILogger<DepartmentsController> _logger;
         private readonly IBaseInterface<DepartmentDto, Department> _departmentRepository;
 
-        public DepartmentsController(IBaseInterface<DepartmentDto, Department> departmentRepository)
+        public DepartmentsController(IBaseInterface<DepartmentDto, Department> departmentRepository, ILogger<DepartmentsController> logger)
         {
             _departmentRepository = departmentRepository;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -48,7 +48,7 @@ namespace CompanyAPI.Controller
         [ChaynsAuth]
         public async Task<IActionResult> Post([FromBody] DepartmentDto department)
         {
-            if (validateCreate(department))
+            if (ValidateCreate(department))
             {
                 var retVal = await _departmentRepository.Create(department);
                 if (!retVal)
@@ -72,21 +72,15 @@ namespace CompanyAPI.Controller
         {
             if (_departmentRepository.ReadId(id) != null)
             {
-                if (validateUpdate(department))
+                if (ValidateUpdate(department))
                 {
                     var retVal = await _departmentRepository.Update(department, id);
-                    if (!retVal)
-                    {
-                        _logger.LogWarning("Bad Request");
-                        return StatusCode(StatusCodes.Status400BadRequest);
-                    }
-                    return NoContent();
-                }
-                else
-                {
+                    if (retVal) return NoContent();
                     _logger.LogWarning("Bad Request");
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
+                _logger.LogWarning("Bad Request");
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
             _logger.LogWarning("Not Fount");
             return StatusCode(StatusCodes.Status404NotFound);
@@ -100,15 +94,15 @@ namespace CompanyAPI.Controller
             if (retVal)
             {
                 _logger.LogInformation("Delete");
-                return StatusCode(StatusCodes.Status200OK, $"Delted {id}");
+                return StatusCode(StatusCodes.Status200OK, $"Deleted {id}");
             }
             _logger.LogWarning("Bad Request");
             return StatusCode(StatusCodes.Status400BadRequest);
         }
 
-        private bool validateCreate(DepartmentDto department)
+        private bool ValidateCreate(DepartmentDto department)
         {
-            if (department.Name != null && department.Description != null && department.CompanyId != null)
+            if (department.Name != null && department.Description != null)
             {
                 _logger.LogInformation("Validate accepted");
                 return true;
@@ -117,9 +111,9 @@ namespace CompanyAPI.Controller
             return false;
         }
 
-        private bool validateUpdate(DepartmentDto department)
+        private bool ValidateUpdate(DepartmentDto department)
         {
-            if (department.Name != null && department.Description != null && department.CompanyId != null)
+            if (department.Name != null && department.Description != null)
             {
                 _logger.LogInformation("Validate accepted");
                 return true;

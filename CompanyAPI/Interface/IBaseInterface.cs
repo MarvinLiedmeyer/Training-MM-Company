@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 namespace CompanyAPI.Interface
 {
-    public interface IBaseInterface<T,D>
+    public interface IBaseInterface<T,TD>
     {
         Task<bool> Create(T data);
-        Task<List<D>> Read();
+        Task<List<TD>> Read();
         Task<bool> Update(T data, int id);
         Task<T> ReadId(int id);
         Task<bool> Delete(int id);

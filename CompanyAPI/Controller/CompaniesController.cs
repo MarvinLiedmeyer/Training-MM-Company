@@ -1,9 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Chayns.Auth.ApiExtensions;
-using Chayns.Auth.Shared.Constants;
 using CompanyAPI.Interface;
 using CompanyAPI.Model;
-using ConsoleApp.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -50,7 +48,7 @@ namespace CompanyAPI.Controller
         [ChaynsAuth]
         public async Task<IActionResult> Post([FromBody] CompanyDto company)
         {
-            if (validateCreate(company))
+            if (ValidateCreate(company))
             {
                 var retVal = await _companyRepository.Create(company.GetCompany());
                 if (retVal == false)
@@ -74,7 +72,7 @@ namespace CompanyAPI.Controller
         {
             if (_companyRepository.ReadId(id) != null)
             {
-                if (validateUpdate(company))
+                if (ValidateUpdate(company))
                 {
                     var retVal = await _companyRepository.Update(company, id);
                     if (retVal == false)
@@ -109,7 +107,7 @@ namespace CompanyAPI.Controller
             return StatusCode(StatusCodes.Status400BadRequest);
         }
 
-        private bool validateCreate(CompanyDto company)
+        private bool ValidateCreate(CompanyDto company)
         {
             if (company.Name != null && company.FoundedDate != null)
             {
@@ -120,7 +118,7 @@ namespace CompanyAPI.Controller
             return false;
         }
 
-        private bool validateUpdate(CompanyDto company)
+        private bool ValidateUpdate(CompanyDto company)
         {
             if (company.Name != null && company.FoundedDate != null)
             {

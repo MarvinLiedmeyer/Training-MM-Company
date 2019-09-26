@@ -1,4 +1,4 @@
-﻿namespace ConsoleApp.Model
+﻿namespace CompanyAPI.Model
 {
     public class Address
     {

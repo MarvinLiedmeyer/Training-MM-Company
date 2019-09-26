@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ConsoleApp.Model {
+namespace CompanyAPI.Model {
     public class Company {
         public int Id { get; set; }
         public string Name { get; set; }
